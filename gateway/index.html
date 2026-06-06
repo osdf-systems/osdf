@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="
+      default-src 'self';
+      script-src 'self' 'wasm-unsafe-eval';
+      style-src 'self';
+      img-src 'self' data:;
+      connect-src 'self';
+      object-src 'none';
+      base-uri 'none';
+      frame-ancestors 'none';
+    "
+  >
+  <title>OSDF Transparent Gateway</title>
+  <link rel="stylesheet" href="./gateway.css?v=2">
+</head>
+<body>
+  <div id="mfa-gate" class="mfa-gate">
+    <div class="mfa-card">
+      <p class="eyebrow">Transparent Gateway</p>
+      <h1>Verify your identity</h1>
+      <p class="lead">Multi-factor authentication is required before viewing secured tax documents.</p>
+      <p class="demo-hint">PoC demo code: <strong id="demo-code">847291</strong></p>
+      <label for="mfa-input">One-time code</label>
+      <input id="mfa-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code">
+      <p id="mfa-error" class="mfa-error" hidden>Invalid code. Use the demo code above.</p>
+      <p id="mfa-boot-error" class="mfa-error" hidden></p>
+      <button id="mfa-submit" type="button">Continue</button>
+    </div>
+  </div>
+
+  <div id="app" class="app" hidden>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">OSDF Transparent Gateway</p>
+        <h1>Secure document viewer</h1>
+      </div>
+      <nav class="topbar-actions">
+        <a href="/web/">Verifier</a>
+        <a href="https://github.com/osdf-systems/osdf/tree/main/specs">Specs</a>
+      </nav>
+    </header>
+
+    <section class="panel controls">
+      <p class="privacy-note">Verification runs locally. Files are not uploaded to a server.</p>
+      <p class="boot-error mfa-error" hidden></p>
+      <div class="demo-buttons">
+        <button type="button" data-fixture="/fixtures/valid/taxes-template.osdf">Load blank template (rev 1)</button>
+        <button type="button" data-fixture="/fixtures/valid/Taxes.osdf" class="primary">Load Taxes.osdf (rev 2, filled)</button>
+        <button type="button" id="choose-file">Upload .osdf</button>
+        <input id="file-input" type="file" accept=".osdf" hidden>
+      </div>
+    </section>
+
+    <section id="trust-panel" class="panel trust-panel">
+      <details>
+        <summary>Trust configuration (optional)</summary>
+        <label for="ledger-config">Ledger config</label>
+        <textarea id="ledger-config" rows="4" spellcheck="false"></textarea>
+        <label for="identity-config">Identity config</label>
+        <textarea id="identity-config" rows="6" spellcheck="false"></textarea>
+      </details>
+    </section>
+
+    <section id="verification-banner" class="verification-banner" hidden></section>
+    <section id="document-frame" class="document-frame" hidden></section>
+  </div>
+
+  <script type="module" src="./gateway.js?v=2"></script>
+</body>
+</html>

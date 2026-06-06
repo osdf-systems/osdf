@@ -1,0 +1,11 @@
+[build]
+target-dir = "target"
+
+[env]
+# After `cargo build --release -p osdf-cli`, copy the binary to
+# %LOCALAPPDATA%\Programs\osdf\bin (see scripts/install-cli.ps1).
+OSDF_AUTO_INSTALL = "1"
+
+[alias]
+# Run the CLI from the workspace without installing (always rebuilds if needed).
+osdf = "run --release -p osdf-cli --"

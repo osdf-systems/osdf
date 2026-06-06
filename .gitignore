@@ -1,0 +1,29 @@
+# Rust
+/target/
+**/target/
+
+# wasm-pack generated output
+/web/pkg/
+/crates/osdf-wasm/pkg/
+
+# wasm-pack temporary output
+**/.wasm-pack/
+
+# Editors and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Locally generated OSDF test files
+/*.osdf
+
+# Local ledger dev artifacts (never commit operator keys)
+/ledger.json
+/ledger-key.json
+/trust.json
+
+# Product marketing site and HTML docs (separate private/site repo)
+/marketing/
+/docs-site/
+/scripts/serve-marketing.ps1

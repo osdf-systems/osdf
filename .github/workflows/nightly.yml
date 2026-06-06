@@ -1,0 +1,34 @@
+name: Nightly build
+
+on:
+  schedule:
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  nightly:
+    name: Build nightly CLI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run tests
+        run: cargo test --workspace --locked
+
+      - name: Build CLI
+        run: cargo build --package osdf-cli --release --locked
+
+      - name: Upload nightly binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: osdf-nightly-${{ github.sha }}
+          path: target/release/osdf
+          retention-days: 14

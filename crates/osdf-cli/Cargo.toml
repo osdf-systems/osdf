@@ -1,0 +1,20 @@
+[package]
+name = "osdf-cli"
+description = "CLI for Open Secure Document Format packages"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "osdf"
+path = "src/main.rs"
+
+[package.metadata.dist]
+dist = true
+default = true
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+osdf-core = { path = "../osdf-core" }
+serde_json.workspace = true

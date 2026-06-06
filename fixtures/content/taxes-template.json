@@ -1,0 +1,52 @@
+{
+  "type": "taxForm",
+  "schemaVersion": "1",
+  "formId": "demo-us-1040-simplified",
+  "title": "Individual Income Tax Return (Demonstration)",
+  "taxYear": 2025,
+  "issuer": "State Department of Revenue — Demo",
+  "revisionLabel": "Blank template",
+  "sections": [
+    {
+      "id": "taxpayer",
+      "title": "Taxpayer information",
+      "fields": [
+        { "id": "firstName", "label": "First name", "value": "", "inputType": "text" },
+        { "id": "lastName", "label": "Last name", "value": "", "inputType": "text" },
+        { "id": "ssn", "label": "Social Security number", "value": "", "inputType": "ssn", "placeholder": "XXX-XX-XXXX" },
+        { "id": "filingStatus", "label": "Filing status", "value": "", "inputType": "select", "options": ["Single", "Married filing jointly", "Head of household"] },
+        { "id": "address", "label": "Street address", "value": "", "inputType": "text" },
+        { "id": "city", "label": "City", "value": "", "inputType": "text" },
+        { "id": "state", "label": "State", "value": "", "inputType": "text" },
+        { "id": "zip", "label": "ZIP code", "value": "", "inputType": "text" }
+      ]
+    },
+    {
+      "id": "income",
+      "title": "Income",
+      "fields": [
+        { "id": "wages", "label": "Wages, salaries, tips (W-2)", "value": "", "inputType": "currency" },
+        { "id": "interest", "label": "Taxable interest", "value": "", "inputType": "currency" },
+        { "id": "dividends", "label": "Ordinary dividends", "value": "", "inputType": "currency" },
+        { "id": "otherIncome", "label": "Other income", "value": "", "inputType": "currency" }
+      ]
+    },
+    {
+      "id": "deductions",
+      "title": "Deductions & credits",
+      "fields": [
+        { "id": "standardDeduction", "label": "Standard deduction", "value": "", "inputType": "currency" },
+        { "id": "childCredit", "label": "Child tax credit", "value": "", "inputType": "currency" },
+        { "id": "withholding", "label": "Federal income tax withheld", "value": "", "inputType": "currency" }
+      ]
+    },
+    {
+      "id": "signature",
+      "title": "Declaration",
+      "fields": [
+        { "id": "signatureName", "label": "Your signature (type full name)", "value": "", "inputType": "text" },
+        { "id": "signatureDate", "label": "Date", "value": "", "inputType": "date" }
+      ]
+    }
+  ]
+}
