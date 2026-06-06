@@ -1,0 +1,52 @@
+{
+  "type": "taxForm",
+  "schemaVersion": "1",
+  "formId": "demo-us-1040-simplified",
+  "title": "Individual Income Tax Return (Demonstration)",
+  "taxYear": 2025,
+  "issuer": "State Department of Revenue — Demo",
+  "revisionLabel": "Taxpayer submission (demo data)",
+  "sections": [
+    {
+      "id": "taxpayer",
+      "title": "Taxpayer information",
+      "fields": [
+        { "id": "firstName", "label": "First name", "value": "Jordan", "inputType": "text" },
+        { "id": "lastName", "label": "Last name", "value": "Rivera", "inputType": "text" },
+        { "id": "ssn", "label": "Social Security number", "value": "123-45-6789", "inputType": "ssn", "placeholder": "XXX-XX-XXXX" },
+        { "id": "filingStatus", "label": "Filing status", "value": "Single", "inputType": "select", "options": ["Single", "Married filing jointly", "Head of household"] },
+        { "id": "address", "label": "Street address", "value": "1842 Cedar Lane", "inputType": "text" },
+        { "id": "city", "label": "City", "value": "Denver", "inputType": "text" },
+        { "id": "state", "label": "State", "value": "CO", "inputType": "text" },
+        { "id": "zip", "label": "ZIP code", "value": "80202", "inputType": "text" }
+      ]
+    },
+    {
+      "id": "income",
+      "title": "Income",
+      "fields": [
+        { "id": "wages", "label": "Wages, salaries, tips (W-2)", "value": "68500.00", "inputType": "currency" },
+        { "id": "interest", "label": "Taxable interest", "value": "245.18", "inputType": "currency" },
+        { "id": "dividends", "label": "Ordinary dividends", "value": "1200.00", "inputType": "currency" },
+        { "id": "otherIncome", "label": "Other income", "value": "0.00", "inputType": "currency" }
+      ]
+    },
+    {
+      "id": "deductions",
+      "title": "Deductions & credits",
+      "fields": [
+        { "id": "standardDeduction", "label": "Standard deduction", "value": "14600.00", "inputType": "currency" },
+        { "id": "childCredit", "label": "Child tax credit", "value": "0.00", "inputType": "currency" },
+        { "id": "withholding", "label": "Federal income tax withheld", "value": "9200.00", "inputType": "currency" }
+      ]
+    },
+    {
+      "id": "signature",
+      "title": "Declaration",
+      "fields": [
+        { "id": "signatureName", "label": "Your signature (type full name)", "value": "Jordan Rivera", "inputType": "text" },
+        { "id": "signatureDate", "label": "Date", "value": "2026-04-15", "inputType": "date" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+[workspace]
+resolver = "2"
+members = ["crates/osdf-core", "crates/osdf-cli", "crates/osdf-wasm"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/osdf-systems/osdf"
+homepage = "https://github.com/osdf-systems/osdf"
+description = "Open Secure Document Format verification core, CLI, and WASM"
+authors = ["OSDF Systems, Inc."]
+
+[workspace.metadata.dist]
+dist-version = "0.28.0"
+cargo-dist-version = "0.28.0"
+installers = ["shell", "powershell"]
+targets = [
+    "x86_64-pc-windows-msvc",
+    "x86_64-unknown-linux-gnu",
+    "x86_64-apple-darwin",
+    "aarch64-apple-darwin",
+]
+ci = "github"
+pr-run-mode = "plan"
+
+[workspace.dependencies]
+anyhow = "1.0"
+base64 = "0.22"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4.5", features = ["derive"] }
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+hex = "0.4"
+serde_json_canonicalizer = "0.3"
+rand = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+thiserror = "2.0"
+uuid = { version = "1.11", features = ["v4", "serde"] }
+walkdir = "2.5"
+zip = { version = "2.2", default-features = false, features = ["deflate"] }
+wasm-bindgen = "0.2"
+serde-wasm-bindgen = "0.6"
+getrandom = { version = "0.2", features = ["js"] }

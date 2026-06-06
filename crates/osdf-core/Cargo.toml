@@ -1,0 +1,29 @@
+[package]
+name = "osdf-core"
+description = "Open Secure Document Format — core parser, builder, and verifier"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = ["native-create"]
+native-create = ["dep:rand", "dep:uuid"]
+verify-only = []
+
+[dependencies]
+anyhow.workspace = true
+base64.workspace = true
+chrono.workspace = true
+ed25519-dalek.workspace = true
+hex.workspace = true
+serde_json_canonicalizer.workspace = true
+rand = { workspace = true, optional = true }
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+uuid = { workspace = true, optional = true }
+zip.workspace = true
+
+[dev-dependencies]
+walkdir.workspace = true

@@ -1,0 +1,24 @@
+{
+  "policy": "required",
+  "organizations": [
+    {
+      "organizationId": "urn:osdf:org:colorado-state-demo",
+      "displayName": "State of Colorado",
+      "rootKeys": [
+        "urn:osdf:key:ed25519:ccbb112cbdf35c43f0b62f78b98091d3d2883f91a56c570a41578f1296a8504d"
+      ]
+    }
+  ],
+  "delegations": [
+    {
+      "credentialType": "OSDF_ORGANIZATION_SIGNING_DELEGATION",
+      "organizationId": "urn:osdf:org:colorado-state-demo",
+      "department": "Department of Revenue",
+      "subjectKey": "urn:osdf:key:ed25519:893da3d2efee745bf97fde04974a086b8b1480e585b71c08a7437570ea6f41ee",
+      "validFrom": "2020-01-01T00:00:00Z",
+      "validUntil": "2030-01-01T00:00:00Z",
+      "issuerKey": "urn:osdf:key:ed25519:ccbb112cbdf35c43f0b62f78b98091d3d2883f91a56c570a41578f1296a8504d",
+      "signature": "YdzZG_3xrJJvCzutPzLG-tCCkiZ_btvZLVD9I0U7lJrjDOSC9blQuqZWTRWOb6hbPRbggDZ9QEjkRJn0SddDAg"
+    }
+  ]
+}
