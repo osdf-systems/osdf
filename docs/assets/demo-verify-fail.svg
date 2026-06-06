@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="652" viewBox="0 0 720 652">
+  <rect width="100%" height="100%" rx="8" fill="#0d1117"/>
+  <rect x="1" y="1" width="718" height="650" rx="8" fill="none" stroke="#f85149" stroke-width="2"/>
+<text x="16" y="30" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">After 1-byte tamper</text>
+<text x="16" y="48" fill="#f85149" font-family="Consolas, 'Courier New', monospace" font-size="13">Overall: FAIL   (0.23 ms)</text>
+<text x="16" y="66" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13"></text>
+<text x="16" y="84" fill="#f85149" font-family="Consolas, 'Courier New', monospace" font-size="13">[FAIL] Container safety</text>
+<text x="16" y="102" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] ZIP archive readable</text>
+<text x="16" y="120" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] ZIP paths are safe</text>
+<text x="16" y="138" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] No duplicate paths</text>
+<text x="16" y="156" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] No trailing bytes</text>
+<text x="16" y="174" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] OSDF magic header recognized</text>
+<text x="16" y="192" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [FAIL] Container byte length matches</text>
+<text x="16" y="210" fill="#f85149" font-family="Consolas, 'Courier New', monospace" font-size="13">[FAIL] Manifest integrity</text>
+<text x="16" y="228" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] Manifest parsed</text>
+<text x="16" y="246" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] Declared objects present</text>
+<text x="16" y="264" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] Object sizes match</text>
+<text x="16" y="282" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [FAIL] Object hashes match</text>
+<text x="16" y="300" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] No undeclared objects</text>
+<text x="16" y="318" fill="#3fb950" font-family="Consolas, 'Courier New', monospace" font-size="13">[PASS] Revision integrity</text>
+<text x="16" y="336" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] Revision chain valid</text>
+<text x="16" y="354" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] Parent revision commitment valid</text>
+<text x="16" y="372" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] Current revision metadata valid</text>
+<text x="16" y="390" fill="#3fb950" font-family="Consolas, 'Courier New', monospace" font-size="13">[PASS] Signatures</text>
+<text x="16" y="408" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] Signature structure valid</text>
+<text x="16" y="426" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      [PASS] Signature cryptographically valid</text>
+<text x="16" y="444" fill="#3fb950" font-family="Consolas, 'Courier New', monospace" font-size="13">[PASS] Transparency</text>
+<text x="16" y="462" fill="#3fb950" font-family="Consolas, 'Courier New', monospace" font-size="13">[PASS] Verification mode</text>
+<text x="16" y="480" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13"></text>
+<text x="16" y="498" fill="#f85149" font-family="Consolas, 'Courier New', monospace" font-size="13">[FAIL] Package size mismatch</text>
+<text x="16" y="516" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      (OSDF_HEADER_PACKAGE_BYTES)</text>
+<text x="16" y="534" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13"></text>
+<text x="16" y="552" fill="#f85149" font-family="Consolas, 'Courier New', monospace" font-size="13">[FAIL] Content hash mismatch</text>
+<text x="16" y="570" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">      (OSDF_MANIFEST_HASH_MISMATCH)</text>
+<text x="16" y="588" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13"></text>
+<text x="16" y="606" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">Document: urn:osdf:doc:08e3c3f0-f3c8-4fa6-ad29-8c59ee19a61f</text>
+<text x="16" y="624" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="13">Revision: 1   Signatures: 1</text>
+
+</svg>
