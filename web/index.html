@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="
+      default-src 'self';
+      script-src 'self' 'wasm-unsafe-eval';
+      style-src 'self';
+      img-src 'self' data:;
+      connect-src 'self';
+      object-src 'none';
+      base-uri 'none';
+      frame-ancestors 'none';
+    "
+  >
+  <title>OSDF Verifier</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <p class="eyebrow">Open Secure Document Format</p>
+      <h1>Verify an OSDF document</h1>
+      <p class="privacy-note">
+        Verification runs locally in your browser. This file is not uploaded.
+      </p>
+      <p id="verifier-fingerprint" class="fingerprint"></p>
+    </header>
+
+    <section class="panel ledger-panel">
+      <h2>Trust configuration (optional)</h2>
+      <p class="privacy-note">
+        Paste JSON trust material for ledger and/or organizational identity verification.
+        Leave empty for standard local verification.
+      </p>
+      <label for="ledger-config">Ledger config (`LedgerConfig`)</label>
+      <textarea
+        id="ledger-config"
+        rows="5"
+        spellcheck="false"
+        placeholder='{"policy":"required","trustedLogs":[{"logId":"…","logPublicKeyUrn":"…"}]}'
+      ></textarea>
+      <label for="identity-config">Identity config (`IdentityConfig`)</label>
+      <textarea
+        id="identity-config"
+        rows="8"
+        spellcheck="false"
+        placeholder='{"policy":"required","organizations":[{"organizationId":"…","displayName":"State of Colorado","rootKeys":["…"]}],"delegations":[…]}'
+      ></textarea>
+    </section>
+
+    <section
+      id="drop-zone"
+      class="drop-zone"
+      tabindex="0"
+      role="button"
+      aria-label="Choose or drop an OSDF file"
+    >
+      <strong>Drop an .osdf file here</strong>
+      <span>or</span>
+      <button id="choose-file" type="button">Choose file</button>
+      <input id="file-input" type="file" accept=".osdf" hidden>
+    </section>
+
+    <section id="file-summary" class="panel" hidden></section>
+    <section id="verification-result" class="panel" hidden></section>
+    <button id="export-report" type="button" hidden></button>
+
+    <noscript>
+      JavaScript is required to run local WebAssembly verification.
+    </noscript>
+  </main>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

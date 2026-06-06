@@ -1,0 +1,248 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color-scheme: light dark;
+  --pass: #167c3a;
+  --warn: #8a6700;
+  --fail: #b42318;
+  --info: #175cd3;
+  --panel-border: color-mix(in srgb, currentColor 35%, transparent);
+}
+
+body {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.container {
+  width: min(820px, calc(100% - 2rem));
+  margin: 2rem auto 4rem;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.8rem;
+}
+
+.privacy-note {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.fingerprint {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.drop-zone,
+.panel {
+  border: 1px solid var(--panel-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-top: 1rem;
+}
+
+.drop-zone {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+  border-style: dashed;
+}
+
+.drag-over {
+  outline: 3px solid currentColor;
+}
+
+.trust-banner {
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.trust-banner p {
+  margin: 0.35rem 0 0;
+}
+
+.ledger-panel label {
+  display: block;
+  margin-top: 0.75rem;
+  font-weight: 600;
+}
+
+.ledger-panel textarea {
+  width: 100%;
+  margin-top: 0.35rem;
+  box-sizing: border-box;
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+}
+
+.banner-pass {
+  border: 1px solid var(--pass);
+  background: color-mix(in srgb, var(--pass) 12%, transparent);
+}
+
+.banner-caveats {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.banner-caveats li {
+  margin-block: 0.25rem;
+}
+
+.headline-summary {
+  margin-top: 1.25rem;
+}
+
+.headline-checks {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.headline-check {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: 0.5rem;
+}
+
+.section-details,
+.technical-panel,
+.verify-section {
+  margin-top: 1rem;
+}
+
+.verify-section-mode {
+  border: 1px solid var(--panel-border);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+
+.technical-panel,
+.section-details {
+  border: 1px solid var(--panel-border);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.technical-grid {
+  margin-top: 0.75rem;
+}
+
+.technical-grid code {
+  word-break: break-all;
+}
+
+.banner-fail {
+  border: 1px solid var(--fail);
+  background: color-mix(in srgb, var(--fail) 12%, transparent);
+}
+
+.summary-card,
+.verify-section,
+.findings,
+.info-block {
+  margin-top: 1.25rem;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 1rem;
+}
+
+dt {
+  font-weight: 700;
+}
+
+.checks {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+}
+
+.check {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: 0.5rem;
+  margin-block: 0.65rem;
+}
+
+.check-body {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.check-details {
+  opacity: 0.85;
+  font-size: 0.92rem;
+}
+
+.finding {
+  border: 1px solid var(--panel-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-top: 0.75rem;
+}
+
+.finding h4 {
+  margin: 0 0 0.35rem;
+}
+
+.finding p {
+  margin: 0;
+}
+
+.technical-details {
+  margin-top: 0.75rem;
+}
+
+.technical-details pre {
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.actions {
+  margin-top: 1.25rem;
+}
+
+button {
+  font: inherit;
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--panel-border);
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  cursor: pointer;
+}
+
+.pass,
+.banner-pass strong {
+  color: var(--pass);
+}
+
+.warning,
+.finding.warning {
+  color: var(--warn);
+}
+
+.fail,
+.fatal,
+.finding.fail,
+.banner-fail strong {
+  color: var(--fail);
+}
+
+.info,
+.info-block,
+.finding.info {
+  color: var(--info);
+}
+
+#export-report {
+  display: none;
+}

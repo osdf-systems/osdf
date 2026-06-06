@@ -1,0 +1,19 @@
+{
+  "policy": "required",
+  "trustedLogs": [
+    {
+      "logId": "urn:osdf:log:fixture",
+      "logPublicKeyUrn": "urn:osdf:key:ed25519:6920e7d2ed3e9a4c3df443eb53a157caff5336774f2290e0a48cf432a4669799"
+    }
+  ],
+  "latestRevisionPolicy": "optional",
+  "latestRevisions": [
+    {
+      "documentId": "urn:osdf:doc:029ab052-78b8-49b0-9ba6-1b24e45db095",
+      "revision": 2,
+      "revisionEventHash": "sha256:3abee9019c88f30daed52b4413248ab37f614bb8d9cdd944a860eb1b474c1a62",
+      "leafIndex": 1,
+      "updatedAt": "2026-06-05T04:37:49Z"
+    }
+  ]
+}
