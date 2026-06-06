@@ -1,3 +1,5 @@
+mod demo;
+
 use std::path::PathBuf;
 
 use anyhow::Context;
@@ -78,6 +80,24 @@ enum Commands {
     Ledger {
         #[command(subcommand)]
         command: LedgerCommands,
+    },
+    /// Narrated verification demo for README / stakeholder walkthrough
+    Demo {
+        #[command(subcommand)]
+        command: DemoCommands,
+    },
+}
+
+#[derive(Subcommand)]
+enum DemoCommands {
+    /// Verify PASS, tamper 1 byte, verify FAIL — with timings
+    Safety {
+        /// Signed OSDF package to verify (defaults to committed fixture)
+        #[arg(value_parser = existing_file_path)]
+        path: Option<PathBuf>,
+        /// Write SVG assets for README (`demo-verify-pass.svg`, `demo-verify-fail.svg`)
+        #[arg(long, value_name = "DIR")]
+        write_readme_assets: Option<PathBuf>,
     },
 }
 
@@ -321,9 +341,32 @@ fn main() -> anyhow::Result<()> {
                 }
             }
         },
+        Commands::Demo { command } => match command {
+            DemoCommands::Safety {
+                path,
+                write_readme_assets,
+            } => {
+                let fixture = path.unwrap_or_else(default_safety_fixture);
+                demo::run_safety_demo(&fixture, write_readme_assets.as_deref())?;
+            }
+        },
     }
 
     Ok(())
+}
+
+fn default_safety_fixture() -> PathBuf {
+    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let candidates = [
+        manifest_dir.join("../../fixtures/valid/valid-committed.osdf"),
+        PathBuf::from("fixtures/valid/valid-committed.osdf"),
+    ];
+    for candidate in &candidates {
+        if candidate.is_file() {
+            return candidate.clone();
+        }
+    }
+    PathBuf::from("fixtures/valid/valid-committed.osdf")
 }
 
 fn load_verifier_config(
