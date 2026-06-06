@@ -5,6 +5,31 @@ Open Secure Document Format implementation.
 **Repository:** https://github.com/osdf-systems/osdf  
 **Organization:** [OSDF Systems](https://github.com/osdf-systems)
 
+<p align="center">
+  <img src="docs/assets/demo-verify-pass.svg" alt="OSDF verification report — PASS with container, manifest, revision, and signature checks" width="720"/>
+  <br><em>Verification report showing cryptographic chain-of-custody</em>
+</p>
+
+<p align="center">
+  <img src="docs/assets/demo-verify-fail.svg" alt="OSDF verification report — FAIL after 1-byte tamper" width="720"/>
+  <br><em>Detecting a 1-byte tamper in &lt;10ms</em>
+</p>
+
+Run the live demo (timings from your machine):
+
+```powershell
+cargo build --release -p osdf-cli
+.\target\release\osdf.exe demo safety
+```
+
+Regenerate README images after verifier changes:
+
+```powershell
+.\target\release\osdf.exe demo safety --write-readme-assets docs/assets
+```
+
+---
+
 ## Quick start
 
 ```powershell
@@ -43,7 +68,7 @@ Release channels: stable tags (`v0.1.0`), prereleases (`v0.1.0-alpha.1`), and op
 - JCS canonicalization and SHA-256 object digests
 - Signed Merkle manifest and revision chain
 - Ed25519 scoped signatures (community baseline)
-- CLI: `verify`, `inspect`, `create`, `commit-revision`
+- CLI: `verify`, `inspect`, `create`, `commit-revision`, `demo safety`
 
 ### Phase B — Browser verifier (WASM)
 
