@@ -3,7 +3,7 @@ name = "osdf-wasm"
 version = "0.1.0"
 edition = "2021"
 description = "WebAssembly bindings for browser-based OSDF verification"
-license = "MIT OR Apache-2.0"
+license.workspace = true
 build = "build.rs"
 
 [lib]

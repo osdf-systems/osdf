@@ -6,6 +6,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- License: PolyForm Noncommercial 1.0.0 (planned relicense to Apache-2.0 OR MIT at v1.0; see `docs/licensing.md`)
+
 ### Added
 
 - GitHub CI, nightly builds, and release workflow scaffolding

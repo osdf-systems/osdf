@@ -5,11 +5,11 @@ members = ["crates/osdf-core", "crates/osdf-cli", "crates/osdf-wasm"]
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
-license = "Apache-2.0 OR MIT"
+license = "PolyForm-Noncommercial-1.0.0"
 repository = "https://github.com/osdf-systems/osdf"
 homepage = "https://github.com/osdf-systems/osdf"
 description = "Open Secure Document Format verification core, CLI, and WASM"
-authors = ["OSDF Systems, Inc."]
+authors = ["OSDF Systems LLC"]
 
 [workspace.metadata.dist]
 dist-version = "0.28.0"

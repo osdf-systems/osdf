@@ -113,7 +113,9 @@ Update `security@osdf.systems` in SECURITY.md when that mailbox is live.
 | `CODE_OF_CONDUCT.md` | Community standard |
 | `CONTRIBUTING.md` | Contributor guide |
 | `CHANGELOG.md` | Release notes |
-| `LICENSE-APACHE` / `LICENSE-MIT` | Dual license |
+| `LICENSE` (PolyForm Noncommercial) | Active license |
+| `docs/licensing.md` | Planned Apache/MIT relicense |
+| `licenses/future/LICENSE-APACHE` / `LICENSE-MIT` | Draft future licenses (not in effect) |
 | `.editorconfig` / `.gitattributes` | Consistent formatting |
 
 ---
