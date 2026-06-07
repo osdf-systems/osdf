@@ -1,0 +1,42 @@
+name: Feature request
+description: Propose a format, API, or tooling enhancement
+title: "[feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What problem does this solve? Who is affected?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed approach
+      description: High-level solution. Link specs if you have a draft.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - osdf-core (open format)
+        - CLI / developer experience
+        - browser verifier
+        - gateway / demo
+        - documentation only
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: breaking
+    attributes:
+      label: Compatibility
+      options:
+        - label: This would require a breaking format or API change
+        - label: I am willing to help implement or review a PR
