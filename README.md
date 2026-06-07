@@ -18,7 +18,9 @@
 
 OSDF is a **data-centric document format**: every byte in a package is declared, hashed, and signed. Verification runs **locally** in a memory-safe Rust core (CLI, library, or WASM) with explicit pass/fail reporting and no dependency on a remote service for integrity checks.
 
-This repository is the **open core**: container format, verifier, transparency-log proofs, browser UI, and a gateway proof-of-concept. Enterprise identity, policy enforcement, and hosted ledger services are built in separate products.
+This repository is the **public source-available alpha** of the OSDF core: container format, verifier, transparency-log proofs, browser UI, and a gateway proof-of-concept. Enterprise identity, policy enforcement, and hosted ledger services are built in separate products.
+
+The stable open core is planned for **Apache-2.0 OR MIT** licensing (see [docs/licensing.md](docs/licensing.md)).
 
 | Property | Behavior |
 | --- | --- |
