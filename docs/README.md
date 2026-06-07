@@ -15,3 +15,4 @@ HTML marketing and format-reference sites are maintained outside this repository
 - `specs/phase-b3.md` — latest-revision registry
 - `specs/phase-c-gateway.md` — transparent gateway PoC
 - `specs/phase-d-m2-hosted.md` — hosted ledger on LAN
+- `specs/phase-ii-performance.md` — Phase II latency / throughput roadmap

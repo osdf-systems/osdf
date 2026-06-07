@@ -346,27 +346,12 @@ fn main() -> anyhow::Result<()> {
                 path,
                 write_readme_assets,
             } => {
-                let fixture = path.unwrap_or_else(default_safety_fixture);
-                demo::run_safety_demo(&fixture, write_readme_assets.as_deref())?;
+                demo::run_safety_demo(path.as_deref(), write_readme_assets.as_deref())?;
             }
         },
     }
 
     Ok(())
-}
-
-fn default_safety_fixture() -> PathBuf {
-    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let candidates = [
-        manifest_dir.join("../../fixtures/valid/valid-committed.osdf"),
-        PathBuf::from("fixtures/valid/valid-committed.osdf"),
-    ];
-    for candidate in &candidates {
-        if candidate.is_file() {
-            return candidate.clone();
-        }
-    }
-    PathBuf::from("fixtures/valid/valid-committed.osdf")
 }
 
 fn load_verifier_config(

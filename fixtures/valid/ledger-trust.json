@@ -3,17 +3,17 @@
   "trustedLogs": [
     {
       "logId": "urn:osdf:log:fixture",
-      "logPublicKeyUrn": "urn:osdf:key:ed25519:6920e7d2ed3e9a4c3df443eb53a157caff5336774f2290e0a48cf432a4669799"
+      "logPublicKeyUrn": "urn:osdf:key:ed25519:346c83ac4a8ab908716be16f9007acc9e0fbbd8c27e8373864d67a40e9e401f0"
     }
   ],
   "latestRevisionPolicy": "optional",
   "latestRevisions": [
     {
-      "documentId": "urn:osdf:doc:029ab052-78b8-49b0-9ba6-1b24e45db095",
+      "documentId": "urn:osdf:doc:595be0fc-9233-4c56-ac6c-ead4e68678cc",
       "revision": 2,
-      "revisionEventHash": "sha256:3abee9019c88f30daed52b4413248ab37f614bb8d9cdd944a860eb1b474c1a62",
+      "revisionEventHash": "sha256:620e9f1052d08ce1b17b2335e784d2a99baafdf0225915754e0ac132f4fe5423",
       "leafIndex": 1,
-      "updatedAt": "2026-06-05T04:37:49Z"
+      "updatedAt": "2026-06-07T08:12:33Z"
     }
   ]
 }
