@@ -2,6 +2,8 @@
 
 | Location | Audience | Contents |
 | --- | --- | --- |
+| [getting-started.md](getting-started.md) | New users | **Windows, macOS, and Linux** setup and scripts |
+| [github-setup.md](github-setup.md) | Maintainers | Branch protection, GitHub About, releases, security settings |
 | [specs/](../specs/) | Implementers and auditors | Phase specs, demo package plan, roadmap |
 | [docs/web-verifier.md](web-verifier.md) | Integrators | Browser WASM verifier |
 | [fixtures/README.md](../fixtures/README.md) | Test authors | Valid/invalid package catalog |

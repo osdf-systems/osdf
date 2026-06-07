@@ -13,7 +13,7 @@ OSDF is a security-focused document verification platform. We take vulnerability
 
 **Do not open public GitHub issues for security vulnerabilities.**
 
-Email: security@osdf.systems (update this address when operational)
+Email: [dan@osdfsystems.com](mailto:dan@osdfsystems.com)
 
 Include:
 
