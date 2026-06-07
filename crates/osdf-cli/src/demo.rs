@@ -1,18 +1,20 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 use anyhow::{bail, Context};
-use osdf_core::{verify_package_bytes, PackageContainer, VerificationReport, VerificationStatus};
+use osdf_core::{
+    create_package, generate_signing_key, verify_package_bytes, CreateOptions, PackageContainer,
+    VerificationReport, VerificationStatus,
+};
 
 const CONTENT_PATH: &str = "content/document.json";
 const TAMPER_CONTENT_BYTE: usize = 32;
 
-pub fn run_safety_demo(path: &Path, write_assets: Option<&Path>) -> anyhow::Result<()> {
-    let bytes = std::fs::read(path)
-        .with_context(|| format!("read demo fixture `{}`", path.display()))?;
+pub fn run_safety_demo(path: Option<&Path>, write_assets: Option<&Path>) -> anyhow::Result<()> {
+    let (bytes, source_label) = load_demo_bytes(path)?;
 
     println!("OSDF mathematical safety demo");
-    println!("Fixture: {}\n", path.display());
+    println!("Source: {source_label}\n");
 
     let pass_start = Instant::now();
     let pass_report = verify_package_bytes(&bytes);
@@ -44,6 +46,47 @@ pub fn run_safety_demo(path: &Path, write_assets: Option<&Path>) -> anyhow::Resu
     }
 
     Ok(())
+}
+
+fn load_demo_bytes(path: Option<&Path>) -> anyhow::Result<(Vec<u8>, String)> {
+    if let Some(path) = path {
+        let bytes = std::fs::read(path)
+            .with_context(|| format!("read demo fixture `{}`", path.display()))?;
+        return Ok((bytes, path.display().to_string()));
+    }
+
+    for candidate in default_fixture_candidates() {
+        if candidate.is_file() {
+            let bytes = std::fs::read(&candidate)?;
+            return Ok((bytes, candidate.display().to_string()));
+        }
+    }
+
+    let bytes = build_ephemeral_demo_package()?;
+    Ok((
+        bytes,
+        "ephemeral signed demo package (generated in memory)".to_string(),
+    ))
+}
+
+fn default_fixture_candidates() -> [PathBuf; 2] {
+    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    [
+        manifest_dir.join("../../fixtures/valid/valid-committed.osdf"),
+        PathBuf::from("fixtures/valid/valid-committed.osdf"),
+    ]
+}
+
+fn build_ephemeral_demo_package() -> anyhow::Result<Vec<u8>> {
+    let container = create_package(CreateOptions {
+        title: "OSDF Safety Demo".to_string(),
+        document_id: None,
+        signing_key: Some(generate_signing_key()),
+        commit: true,
+    })?;
+    container
+        .to_bytes()
+        .context("serialize ephemeral demo package")
 }
 
 fn tamper_content_byte(bytes: &[u8]) -> anyhow::Result<Vec<u8>> {
@@ -102,7 +145,10 @@ fn print_demo_panel(title: &str, report: &VerificationReport, elapsed_ms: f64) {
         println!("│ Document: {document_id}");
     }
     if let Some(revision) = report.revision {
-        println!("│ Revision: {revision}   Signatures: {}", report.signature_count);
+        println!(
+            "│ Revision: {revision}   Signatures: {}",
+            report.signature_count
+        );
     }
 
     println!("└────────────────────────────────────────────────────────");
@@ -135,7 +181,10 @@ fn write_readme_assets(
 fn panel_lines(title: &str, report: &VerificationReport, elapsed_ms: f64) -> Vec<String> {
     let mut lines = vec![
         title.to_string(),
-        format!("Overall: {}   ({elapsed_ms:.2} ms)", report.overall.as_str()),
+        format!(
+            "Overall: {}   ({elapsed_ms:.2} ms)",
+            report.overall.as_str()
+        ),
         String::new(),
     ];
 
