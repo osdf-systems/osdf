@@ -12,19 +12,16 @@ The verifier:
 - verifies the revision chain;
 - verifies cryptographic signatures.
 
-## Build
+## Build and serve
 
-```powershell
-.\scripts\build-wasm.ps1
-```
-
-## Serve locally
-
-```powershell
-.\scripts\serve-web.ps1
-```
+| Step | macOS / Linux | Windows |
+| --- | --- | --- |
+| Build WASM | `./scripts/build-wasm.sh` | `.\scripts\build-wasm.ps1` |
+| Serve UI | `./scripts/serve-web.sh` | `.\scripts\serve-web.ps1` |
 
 Open `http://localhost:8080/`.
+
+Full platform notes: [getting-started.md](getting-started.md)
 
 ## Test fixtures
 
@@ -53,3 +50,5 @@ It does not yet:
 - verify trusted timestamps;
 - import or render PDF files;
 - create, revise, or sign OSDF files.
+
+Supply a ledger trust file for embedded transparency proof checks (CLI `--ledger-config` or browser textarea).

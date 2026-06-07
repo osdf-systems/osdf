@@ -8,32 +8,46 @@ https://github.com/osdf-systems/osdf
 
 ## Branch model
 
-- `main` — always compiles, tests pass, source of release tags
-- `feat/*`, `fix/*`, `docs/*`, `chore/*` — short-lived branches merged via pull request
+- `main`: always compiles, tests pass, source of release tags
+- `feat/*`, `fix/*`, `docs/*`, `chore/*`: short-lived branches merged via pull request
 
-Do not commit directly to `main` once branch protection is enabled.
+Do not commit directly to `main` once branch protection is enabled. Setup guide: [docs/github-setup.md](docs/github-setup.md).
 
 ## Development setup
 
-```powershell
+Platform-specific commands: [docs/getting-started.md](docs/getting-started.md)
+
+**All platforms:**
+
+```bash
 git clone https://github.com/osdf-systems/osdf.git
 cd osdf
 cargo test --workspace
-```
-
-Build the CLI:
-
-```powershell
 cargo build --release -p osdf-cli
-.\target\release\osdf.exe verify fixtures\valid\valid-committed.osdf
 ```
 
-Build the browser verifier:
+<details>
+<summary>macOS / Linux</summary>
+
+```bash
+./target/release/osdf verify fixtures/valid/valid-committed.osdf
+chmod +x scripts/*.sh
+./scripts/build-wasm.sh
+./scripts/serve-web.sh
+```
+
+</details>
+
+<details>
+<summary>Windows</summary>
 
 ```powershell
+.\target\release\osdf.exe verify fixtures\valid\valid-committed.osdf
 .\scripts\build-wasm.ps1
 .\scripts\serve-web.ps1
 ```
+
+</details>
 
 ## Pull requests
 
@@ -48,6 +62,7 @@ Build the browser verifier:
    ```
 
 4. Update `specs/` and `docs/` when behavior changes
+5. If you add or change helper scripts, update both `.sh` and `.ps1` when behavior should match
 
 ## Regenerate fixtures
 
@@ -57,7 +72,7 @@ cargo test -p osdf-core --test generate_fixtures write_fixtures -- --ignored
 
 ## Security
 
-Report vulnerabilities privately — see [SECURITY.md](SECURITY.md).
+Report vulnerabilities privately. See [SECURITY.md](SECURITY.md).
 
 ## License
 
