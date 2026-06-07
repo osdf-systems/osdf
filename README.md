@@ -2,11 +2,13 @@
 
 **Open Secure Document Format** · Cryptographic document packages with local, fail-closed verification.
 
-[![License](https://img.shields.io/badge/license-Apache%202.0%20%7C%20MIT-blue.svg)](LICENSE-APACHE)
+[![License](https://img.shields.io/badge/license-PolyForm--Noncommercial--1.0.0-lightgrey)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.93%2B-orange.svg)](https://www.rust-lang.org/)
 [![Version](https://img.shields.io/badge/version-0.1.0--alpha-lightgrey)](CHANGELOG.md)
 
 [OSDF Systems](https://github.com/osdf-systems) · [Repository](https://github.com/osdf-systems/osdf)
+
+**License:** [PolyForm Noncommercial 1.0.0](LICENSE) today · [Planned Apache/MIT open core](docs/licensing.md)
 
 **Platforms:** Windows · macOS (Intel & Apple Silicon) · Linux · [Platform guides →](docs/getting-started.md)
 
@@ -206,4 +208,8 @@ Implementer specifications live in [`specs/`](specs/). Marketing and HTML docume
 
 ## License
 
-Dual-licensed under [Apache-2.0](LICENSE-APACHE) and [MIT](LICENSE-MIT).
+**Current:** [PolyForm Noncommercial License 1.0.0](LICENSE) (noncommercial use, research, education, and qualifying organizations).
+
+**Planned:** The open core will relicense to **Apache-2.0 OR MIT** at stable **v1.0** or within **24 months** of going public, whichever comes first. Details: [docs/licensing.md](docs/licensing.md).
+
+Commercial use or early licensing: [dan@osdfsystems.com](mailto:dan@osdfsystems.com).

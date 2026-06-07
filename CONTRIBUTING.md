@@ -76,4 +76,4 @@ Report vulnerabilities privately. See [SECURITY.md](SECURITY.md).
 
 ## License
 
-By contributing, you agree that your contributions are licensed under the project's Apache-2.0 OR MIT license terms.
+By contributing, you agree that your contributions are licensed under the project's current license ([PolyForm Noncommercial 1.0.0](LICENSE)). After the planned relicense to Apache-2.0 OR MIT (see [docs/licensing.md](docs/licensing.md)), new contributions will follow those terms.

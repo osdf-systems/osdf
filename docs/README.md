@@ -3,6 +3,7 @@
 | Location | Audience | Contents |
 | --- | --- | --- |
 | [getting-started.md](getting-started.md) | New users | **Windows, macOS, and Linux** setup and scripts |
+| [licensing.md](licensing.md) | Everyone | PolyForm NC today; planned Apache/MIT relicense |
 | [github-setup.md](github-setup.md) | Maintainers | Branch protection, GitHub About, releases, security settings |
 | [specs/](../specs/) | Implementers and auditors | Phase specs, demo package plan, roadmap |
 | [docs/web-verifier.md](web-verifier.md) | Integrators | Browser WASM verifier |
