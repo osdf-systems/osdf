@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-Apache%202.0%20%7C%20MIT-blue.svg)](LICENSE-APACHE)
 [![Rust](https://img.shields.io/badge/rust-1.93%2B-orange.svg)](https://www.rust-lang.org/)
-[![Status](https://img.shields.io/badge/status-alpha-0.1-lightgrey.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.1.0--alpha-lightgrey)](CHANGELOG.md)
 
 [OSDF Systems](https://github.com/osdf-systems) · [Repository](https://github.com/osdf-systems/osdf)
 
