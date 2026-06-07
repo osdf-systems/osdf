@@ -53,9 +53,8 @@ pub fn inspect_package(bytes: &[u8]) -> Result<JsValue, JsValue> {
         .map_err(|error| JsValue::from_str(&format!("Failed to read OSDF package: {error}")))?;
     let report = inspect_container(&container)
         .map_err(|error| JsValue::from_str(&format!("Failed to inspect package: {error}")))?;
-    serde_wasm_bindgen::to_value(&report).map_err(|error| {
-        JsValue::from_str(&format!("Failed to serialize inspect report: {error}"))
-    })
+    serde_wasm_bindgen::to_value(&report)
+        .map_err(|error| JsValue::from_str(&format!("Failed to serialize inspect report: {error}")))
 }
 
 #[wasm_bindgen]

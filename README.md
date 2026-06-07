@@ -8,6 +8,8 @@
 
 [OSDF Systems](https://github.com/osdf-systems) · [Repository](https://github.com/osdf-systems/osdf)
 
+**Platforms:** Windows · macOS (Intel & Apple Silicon) · Linux · [Platform guides →](docs/getting-started.md)
+
 ---
 
 ## Overview
@@ -41,37 +43,49 @@ This repository is the **open core**: container format, verifier, transparency-l
 
 **Requirements:** Rust 1.93+ ([rustup](https://rustup.rs/))
 
+These steps are identical on every OS:
+
 ```bash
 git clone https://github.com/osdf-systems/osdf.git
 cd osdf
 cargo build --release -p osdf-cli
-```
-
-**Verify a fixture package:**
-
-```bash
-# Windows
-.\target\release\osdf.exe verify fixtures\valid\valid-committed.osdf
-
-# Linux / macOS
-./target/release/osdf verify fixtures/valid/valid-committed.osdf
-```
-
-**Run the safety demo** (timings from your machine):
-
-```bash
 cargo run --release -p osdf-cli -- demo safety
 ```
 
-**Install to PATH** (optional):
+<details>
+<summary><strong>macOS / Linux</strong> (verify, install, browser demo)</summary>
+
+```bash
+./target/release/osdf verify fixtures/valid/valid-committed.osdf
+chmod +x scripts/*.sh
+./scripts/install-cli.sh          # optional: ~/.local/bin/osdf
+./scripts/build-wasm.sh && ./scripts/serve-demo.sh   # gateway on :8081
+```
+
+Full walkthrough: [docs/getting-started.md#macos](docs/getting-started.md#macos)
+
+</details>
+
+<details>
+<summary><strong>Windows</strong> (verify, install, browser demo)</summary>
+
+```powershell
+.\target\release\osdf.exe verify fixtures\valid\valid-committed.osdf
+.\scripts\install-cli.ps1
+.\scripts\build-wasm.ps1
+.\scripts\serve-demo.ps1
+```
+
+Full walkthrough: [docs/getting-started.md#windows](docs/getting-started.md#windows)
+
+</details>
+
+Cross-platform install (any OS):
 
 ```bash
 cargo install --path crates/osdf-cli --locked
-osdf verify fixtures/valid/valid-committed.osdf
 osdf version
 ```
-
-On Windows, `.\scripts\install-cli.ps1` installs to `%LOCALAPPDATA%\Programs\osdf\bin` and updates PATH. Release builds can auto-refresh that binary (see `.cargo/config.toml`).
 
 Releases: stable tags, prereleases, and nightly CI artifacts. See [CHANGELOG.md](CHANGELOG.md).
 
@@ -88,6 +102,7 @@ Releases: stable tags, prereleases, and nightly CI artifacts. See [CHANGELOG.md]
 | [`gateway/`](gateway/) | Transparent Gateway PoC (MFA gate + structured document render) |
 | [`fixtures/`](fixtures/) | Valid and adversarial test packages |
 | [`specs/`](specs/) | Phase specifications and demonstration plan |
+| [`scripts/`](scripts/) | Platform helpers ([index](scripts/README.md)) |
 
 ---
 
@@ -95,12 +110,10 @@ Releases: stable tags, prereleases, and nightly CI artifacts. See [CHANGELOG.md]
 
 The WASM verifier uses the same Rust library as the CLI. Files never leave the browser.
 
-```bash
-rustup target add wasm32-unknown-unknown
-cargo install wasm-pack
-./scripts/build-wasm.sh    # or .\scripts\build-wasm.ps1 on Windows
-./scripts/serve-web.sh       # or .\scripts\serve-web.ps1
-```
+| Step | macOS / Linux | Windows |
+| --- | --- | --- |
+| Build | `./scripts/build-wasm.sh` | `.\scripts\build-wasm.ps1` |
+| Serve | `./scripts/serve-web.sh` | `.\scripts\serve-web.ps1` |
 
 Open `http://localhost:8080/`. Details: [docs/web-verifier.md](docs/web-verifier.md).
 
@@ -112,10 +125,10 @@ Open `http://localhost:8080/`. Details: [docs/web-verifier.md](docs/web-verifier
 
 Local MFA gate, verify, then render `content/document.json` as a readable form (tax demo fixtures).
 
-```bash
-./scripts/build-wasm.sh && ./scripts/serve-demo.sh
-# Windows: .\scripts\build-wasm.ps1; .\scripts\serve-demo.ps1
-```
+| Step | macOS / Linux | Windows |
+| --- | --- | --- |
+| Build & serve | `./scripts/build-wasm.sh && ./scripts/serve-demo.sh` | `.\scripts\build-wasm.ps1` then `.\scripts\serve-demo.ps1` |
+| Narrated tour | `./scripts/run-demo-package.sh` | `.\scripts\run-demo-package.ps1` |
 
 Open `http://localhost:8081/gateway/` · demo MFA code: `847291`
 
@@ -185,7 +198,7 @@ cargo build --release
 cargo test --workspace
 ```
 
-Contributing: [CONTRIBUTING.md](CONTRIBUTING.md) · Security: [SECURITY.md](SECURITY.md)
+CI runs on **Ubuntu** and **macOS**. Contributing: [CONTRIBUTING.md](CONTRIBUTING.md) · Security: [SECURITY.md](SECURITY.md)
 
 Implementer specifications live in [`specs/`](specs/). Marketing and HTML documentation sites are maintained outside this repository.
 
