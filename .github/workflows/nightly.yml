@@ -27,7 +27,7 @@ jobs:
         run: cargo build --package osdf-cli --release --locked
 
       - name: Upload nightly binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: osdf-nightly-${{ github.sha }}
           path: target/release/osdf
