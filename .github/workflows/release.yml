@@ -28,7 +28,7 @@ jobs:
         run: dist build --artifacts=local --target=x86_64-unknown-linux-gnu
 
       - name: Upload release assets
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: target/distrib/*
           generate_release_notes: true
