@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
+# Serve gateway + browser verifier from repo root (port 8081).
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-web_root="$repo_root/web"
-wasm_file="$web_root/pkg/osdf_wasm_bg.wasm"
-port=8080
+port=8081
+wasm_file="$repo_root/web/pkg/osdf_wasm_bg.wasm"
 
-if [[ ! -f "$web_root/index.html" ]]; then
-  echo "Missing web/index.html. Serve the web/ directory, not web/verifier/ or web/pkg/." >&2
+if [[ ! -f "$repo_root/gateway/index.html" ]]; then
+  echo "Missing gateway/index.html. Run this script from the osdf repository." >&2
   exit 1
 fi
 
@@ -23,11 +23,12 @@ if command -v lsof >/dev/null 2>&1; then
   fi
 fi
 
-echo "Serving OSDF verifier from: $web_root"
-echo "Open: http://localhost:$port/"
+echo "Serving OSDF demo from: $repo_root"
+echo "Gateway:  http://localhost:$port/gateway/"
+echo "Verifier: http://localhost:$port/web/"
 echo
 
-cd "$web_root"
+cd "$repo_root"
 if command -v python3 >/dev/null 2>&1; then
   python3 -m http.server "$port"
 else

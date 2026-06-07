@@ -1,0 +1,78 @@
+name: Bug report
+description: Report incorrect verification, parser behavior, or tooling failure
+title: "[bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. For **security vulnerabilities**, use [Security advisories](https://github.com/osdf-systems/osdf/security/policy) instead of this form.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - osdf-core (parser / crypto)
+        - osdf-cli
+        - osdf-wasm / browser verifier
+        - gateway PoC
+        - CI / release
+        - documentation
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Output of `osdf version` or git SHA
+      placeholder: "0.1.0-alpha.1 or abc1234"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Commands and fixture paths if applicable
+      placeholder: |
+        1. cargo build --release -p osdf-cli
+        2. osdf verify fixtures/invalid/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS (Apple Silicon)
+        - macOS (Intel)
+        - Linux
+        - other
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or verification report
+      description: Paste CLI output or JSON from `osdf verify --json`
+      render: shell

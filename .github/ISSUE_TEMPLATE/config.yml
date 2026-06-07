@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security advisory (private)
+    url: https://github.com/osdf-systems/osdf/security/policy
+    about: Report vulnerabilities privately. Do not open public issues for security bugs.
+  - name: Documentation
+    url: https://github.com/osdf-systems/osdf/blob/main/docs/getting-started.md
+    about: Platform setup and local development guides
