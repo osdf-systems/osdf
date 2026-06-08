@@ -73,8 +73,7 @@ fn verify_signature_envelope(
 
     let commitment = parse_digest(&envelope.revision_commitment)?;
     let manifest_commitment = parse_digest(&manifest.public_commitment)?;
-    if envelope.revision == manifest.revision && !digests_equal(&commitment, &manifest_commitment)
-    {
+    if envelope.revision == manifest.revision && !digests_equal(&commitment, &manifest_commitment) {
         return Err(OsdfError::Signature(
             "signature revision commitment mismatch".to_string(),
         ));
@@ -88,16 +87,14 @@ fn verify_signature_envelope(
     let signature_bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
         .decode(&envelope.signature)
         .map_err(|err| OsdfError::Signature(format!("invalid signature encoding: {err}")))?;
-    let signature = Signature::from_slice(&signature_bytes).map_err(|err| {
-        OsdfError::Signature(format!("invalid ed25519 signature bytes: {err}"))
-    })?;
+    let signature = Signature::from_slice(&signature_bytes)
+        .map_err(|err| OsdfError::Signature(format!("invalid ed25519 signature bytes: {err}")))?;
 
     verifying_key
         .verify(&payload, &signature)
         .map_err(|err| OsdfError::Signature(format!("signature verification failed: {err}")))?;
 
-    if envelope.scope.mode != "document-except-fields"
-        && !envelope.scope.mutable_fields.is_empty()
+    if envelope.scope.mode != "document-except-fields" && !envelope.scope.mutable_fields.is_empty()
     {
         return Err(OsdfError::Signature(
             "Phase A supports only full-document or document-except-fields scopes".to_string(),

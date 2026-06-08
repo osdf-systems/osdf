@@ -48,13 +48,13 @@ pub use verify::{
     verify_container_with_ledger, verify_package_bytes, verify_package_bytes_with_config,
     verify_package_bytes_with_ledger, InspectReport,
 };
+#[cfg(feature = "native-create")]
+pub use verify::{verify_package_path_with_config, verify_package_path_with_ledger};
 pub use verify_fast::{
     fast_fail_from_code, fast_fail_from_error, parse_package, verify_container_fast,
     verify_package_bytes_fast, verify_parsed_package_fast,
 };
 pub use verify_profile::{FastFailCode, FastVerifyResult, ParsedPackage, VerificationProfile};
-#[cfg(feature = "native-create")]
-pub use verify::{verify_package_path_with_config, verify_package_path_with_ledger};
 
 #[cfg(feature = "native-create")]
 pub use build::{

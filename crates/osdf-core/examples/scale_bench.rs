@@ -18,10 +18,10 @@ use std::time::{Duration, Instant};
 
 use osdf_core::constants::{MAX_ENTRIES, MAX_UNCOMPRESSED_BYTES};
 use osdf_core::{
-    commit_revision, create_package, generate_signing_key, parse_package,
-    verify_package_bytes, verify_package_bytes_fast, verify_parsed_package_fast, write_package,
-    CommitOptions, CreateOptions, FastVerifyResult, PackageContainer, VerificationProfile,
-    VerificationStatus, VerifierConfig,
+    commit_revision, create_package, generate_signing_key, parse_package, verify_package_bytes,
+    verify_package_bytes_fast, verify_parsed_package_fast, write_package, CommitOptions,
+    CreateOptions, FastVerifyResult, PackageContainer, VerificationProfile, VerificationStatus,
+    VerifierConfig,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -122,7 +122,13 @@ fn run() -> Result<(), String> {
     }
 
     eprintln!("\n--- Single-thread ---");
-    let single = bench_bytes_single(&config.profile, &bytes, payload_bytes, config.warmup, config.seconds)?;
+    let single = bench_bytes_single(
+        &config.profile,
+        &bytes,
+        payload_bytes,
+        config.warmup,
+        config.seconds,
+    )?;
     print_stats("1 thread", &single);
 
     if config.threads > 1 {
@@ -202,7 +208,11 @@ fn bench_bytes_single(
             runs += 1;
         }
     }
-    Ok(stats_from_runs(runs, Duration::from_secs_f64(seconds), payload_bytes))
+    Ok(stats_from_runs(
+        runs,
+        Duration::from_secs_f64(seconds),
+        payload_bytes,
+    ))
 }
 
 fn bench_bytes_parallel(
@@ -258,7 +268,11 @@ fn bench_parsed_single(
             runs += 1;
         }
     }
-    Ok(stats_from_runs(runs, Duration::from_secs_f64(seconds), payload_bytes))
+    Ok(stats_from_runs(
+        runs,
+        Duration::from_secs_f64(seconds),
+        payload_bytes,
+    ))
 }
 
 fn bench_parsed_parallel(

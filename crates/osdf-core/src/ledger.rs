@@ -345,10 +345,7 @@ pub fn verify_transparency_proof(
         return Ok(());
     }
 
-    if !digest_strings_equal(
-        &proof.revision_event_hash,
-        expected_revision_event_hash,
-    ) {
+    if !digest_strings_equal(&proof.revision_event_hash, expected_revision_event_hash) {
         return Err(OsdfError::Integrity(
             "transparency proof revisionEventHash mismatch".to_string(),
         ));

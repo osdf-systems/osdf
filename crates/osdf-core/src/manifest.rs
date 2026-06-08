@@ -1,7 +1,9 @@
 use crate::canonical::canonicalize_json;
 use crate::constants::{ENVELOPE_PATH, HEADER_PATH, HEADER_SIZE, MANIFEST_PATH};
 use crate::container::PackageContainer;
-use crate::crypto::{digest_strings_equal, digests_equal, format_digest, object_digest, parse_digest};
+use crate::crypto::{
+    digest_strings_equal, digests_equal, format_digest, object_digest, parse_digest,
+};
 use crate::error::{OsdfError, Result};
 use crate::merkle::merkle_root;
 use crate::types::{ManifestObject, PackageManifest, PublicEnvelope};
@@ -142,9 +144,7 @@ pub fn verify_manifest_objects(
                     failures.push(OsdfError::Integrity("manifestDigest mismatch".to_string()));
                 }
             }
-            Err(err) => failures.push(OsdfError::Manifest(format!(
-                "manifest JSON invalid: {err}"
-            ))),
+            Err(err) => failures.push(OsdfError::Manifest(format!("manifest JSON invalid: {err}"))),
         }
     } else {
         failures.push(OsdfError::Integrity(format!("missing `{MANIFEST_PATH}`")));

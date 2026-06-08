@@ -1,6 +1,9 @@
 use crate::constants::MANIFEST_PATH;
 use crate::container::PackageContainer;
-use crate::crypto::{digest_strings_equal, digests_equal, parse_digest, public_revision_commitment, revision_event_hash};
+use crate::crypto::{
+    digest_strings_equal, digests_equal, parse_digest, public_revision_commitment,
+    revision_event_hash,
+};
 use crate::error::{OsdfError, Result};
 use crate::manifest::parse_manifest;
 use crate::types::RevisionRecord;

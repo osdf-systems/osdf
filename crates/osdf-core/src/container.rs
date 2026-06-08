@@ -6,8 +6,8 @@ use zip::write::SimpleFileOptions;
 use zip::{ZipArchive, ZipWriter};
 
 use crate::constants::{
-    HEADER_PATH, HEADER_SIZE, HEADER_VERSION, MAGIC, MAX_ENTRIES, MAX_UNCOMPRESSED_BYTES,
-    suspicious_compression_ratio,
+    suspicious_compression_ratio, HEADER_PATH, HEADER_SIZE, HEADER_VERSION, MAGIC, MAX_ENTRIES,
+    MAX_UNCOMPRESSED_BYTES,
 };
 use crate::error::{OsdfError, Result};
 

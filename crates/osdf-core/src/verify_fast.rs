@@ -30,10 +30,7 @@ pub fn parse_package(bytes: &[u8]) -> Result<ParsedPackage, FastFailCode> {
     })
 }
 
-pub fn verify_package_bytes_fast(
-    bytes: &[u8],
-    config: &VerifierConfig,
-) -> FastVerifyResult {
+pub fn verify_package_bytes_fast(bytes: &[u8], config: &VerifierConfig) -> FastVerifyResult {
     let parsed = match parse_package(bytes) {
         Ok(parsed) => parsed,
         Err(code) => return FastVerifyResult::Fail(code),
@@ -108,7 +105,8 @@ fn read_container_strict(bytes: &[u8]) -> Result<PackageContainer, FastFailCode>
         return Err(FastFailCode::TrailingBytes);
     }
 
-    let container = PackageContainer::read_from_bytes(bytes).map_err(|err| fast_fail_from_error(&err))?;
+    let container =
+        PackageContainer::read_from_bytes(bytes).map_err(|err| fast_fail_from_error(&err))?;
 
     let mut seen_folded = HashSet::new();
     for path in container.paths() {
@@ -208,7 +206,8 @@ fn verify_latest_revision_fast(
         return Err(FastFailCode::LedgerProofInvalid);
     };
 
-    if registry_entry.revision == manifest.revision && registry_entry.revision_event_hash == local_hash
+    if registry_entry.revision == manifest.revision
+        && registry_entry.revision_event_hash == local_hash
     {
         Ok(())
     } else {
