@@ -21,9 +21,14 @@ rand = { workspace = true, optional = true }
 serde.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
+subtle = "2.6"
 thiserror.workspace = true
 uuid = { workspace = true, optional = true }
 zip.workspace = true
 
 [dev-dependencies]
 walkdir.workspace = true
+
+[[example]]
+name = "scale_bench"
+required-features = ["native-create"]

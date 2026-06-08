@@ -1,0 +1,20 @@
+{
+  "format": "OSDF-Transformation",
+  "formatVersion": "1.0-draft",
+  "transformationId": "urn:osdf:transform:550e8400-e29b-41d4-a716-446655440000",
+  "documentId": "urn:osdf:doc:tax-form-2024",
+  "targetRevision": 2,
+  "sourceDocumentId": "urn:osdf:doc:tax-form-2024",
+  "sourceRevision": 1,
+  "sourceRevisionRootHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "sourcePublicCommitment": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "operation": "submit",
+  "operationParams": {
+    "formProfile": "taxForm",
+    "fieldCount": 42
+  },
+  "operatorKey": "urn:osdf:key:ed25519:example-signer",
+  "operatedAt": "2026-06-07T12:00:00Z",
+  "targetManifestDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "signature": ""
+}

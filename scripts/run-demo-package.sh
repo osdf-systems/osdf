@@ -91,7 +91,6 @@ write_beat "9b" "Forensic report export [partial]"
 echo "Browser verifier: drop file at http://localhost:8081/web/ and use Export report."
 echo "CLI JSON: osdf verify <file> --ledger-config ... --json"
 
-
 echo
 echo "--- Summary ---"
 echo "WORKING NOW:"

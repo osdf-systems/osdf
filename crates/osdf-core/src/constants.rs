@@ -19,3 +19,18 @@ pub const MANIFEST_PATH: &str = "manifests/package-manifest.json";
 pub const MAX_ENTRIES: usize = 10_000;
 pub const MAX_UNCOMPRESSED_BYTES: u64 = 256 * 1024 * 1024;
 pub const MAX_COMPRESSION_RATIO: u64 = 200;
+/// Per-entry compression ratio checks apply only above this uncompressed size.
+/// Small metadata JSON (manifests, signatures) may compress heavily without being zip bombs.
+pub const MIN_COMPRESSION_RATIO_CHECK_BYTES: u64 = 256 * 1024;
+
+pub fn suspicious_compression_ratio(uncompressed: u64, compressed: u64) -> bool {
+    if uncompressed <= MIN_COMPRESSION_RATIO_CHECK_BYTES {
+        return false;
+    }
+    let ratio = if compressed == 0 {
+        1
+    } else {
+        uncompressed.saturating_div(compressed)
+    };
+    ratio > MAX_COMPRESSION_RATIO
+}

@@ -1,6 +1,9 @@
 use crate::constants::MANIFEST_PATH;
 use crate::container::PackageContainer;
-use crate::crypto::{parse_digest, public_revision_commitment, revision_event_hash};
+use crate::crypto::{
+    digest_strings_equal, digests_equal, parse_digest, public_revision_commitment,
+    revision_event_hash,
+};
 use crate::error::{OsdfError, Result};
 use crate::manifest::parse_manifest;
 use crate::types::RevisionRecord;
@@ -76,19 +79,19 @@ pub fn verify_revision_chain(container: &PackageContainer) -> Result<()> {
 
         let expected_commitment =
             public_revision_commitment(&record.document_id, record.revision, &salt, &root);
-        if expected_commitment != commitment {
+        if !digests_equal(&expected_commitment, &commitment) {
             return Err(OsdfError::Revision(
                 "public commitment mismatch".to_string(),
             ));
         }
 
         if record.revision == manifest.revision {
-            if manifest.public_commitment != record.public_commitment {
+            if !digest_strings_equal(&manifest.public_commitment, &record.public_commitment) {
                 return Err(OsdfError::Revision(
                     "manifest public commitment mismatch".to_string(),
                 ));
             }
-            if manifest.revision_root_hash != record.revision_root_hash {
+            if !digest_strings_equal(&manifest.revision_root_hash, &record.revision_root_hash) {
                 return Err(OsdfError::Revision(
                     "manifest revision root mismatch".to_string(),
                 ));
@@ -123,7 +126,7 @@ pub fn verify_revision_chain(container: &PackageContainer) -> Result<()> {
             &record.signer_key_reference,
         );
 
-        if expected_event != event_hash {
+        if !digests_equal(&expected_event, &event_hash) {
             return Err(OsdfError::Revision(
                 "revision event hash mismatch".to_string(),
             ));
@@ -139,7 +142,7 @@ pub fn verify_revision_chain(container: &PackageContainer) -> Result<()> {
             ));
         }
         let prior = parse_revision(container, manifest.revision - 1)?;
-        if &prior.public_commitment != parent_commitment {
+        if !digest_strings_equal(&prior.public_commitment, parent_commitment) {
             return Err(OsdfError::Revision(
                 "parent revision commitment mismatch".to_string(),
             ));

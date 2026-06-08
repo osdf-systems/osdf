@@ -4,7 +4,8 @@ use std::io::Read;
 use zip::ZipArchive;
 
 use crate::constants::{
-    HEADER_PATH, HEADER_SIZE, MAGIC, MAX_COMPRESSION_RATIO, MAX_ENTRIES, MAX_UNCOMPRESSED_BYTES,
+    suspicious_compression_ratio, HEADER_PATH, HEADER_SIZE, MAGIC, MAX_ENTRIES,
+    MAX_UNCOMPRESSED_BYTES,
 };
 use crate::container::{normalize_zip_path, parse_header_bytes, PackageContainer, PackageEntry};
 use crate::report::{finding_for_code, ReportBuilder, VerificationStatus};
@@ -116,7 +117,7 @@ pub fn audit_and_read_container(
         } else {
             file.size().saturating_div(file.compressed_size())
         };
-        if compression_ratio > MAX_COMPRESSION_RATIO {
+        if suspicious_compression_ratio(file.size(), file.compressed_size()) {
             record_container_failure(
                 builder,
                 "OSDF_CONTAINER_COMPRESSION_BOMB",
@@ -284,7 +285,7 @@ pub fn audit_manifest(
     builder: &mut ReportBuilder,
 ) -> Option<crate::types::PackageManifest> {
     use crate::constants::{ENVELOPE_PATH, MANIFEST_PATH};
-    use crate::crypto::parse_digest;
+    use crate::crypto::{digest_strings_equal, digests_equal, parse_digest};
     use crate::manifest::{compute_manifest_digest, compute_object_entry, parse_manifest};
     use crate::merkle::merkle_root;
 
@@ -326,7 +327,7 @@ pub fn audit_manifest(
                 "OSDF_MANIFEST_ERROR",
                 "manifest must not include itself in objects[] (use manifestDigest)",
             );
-            break;
+            continue;
         }
 
         let Some(actual) = container.get(&object.path) else {
@@ -336,7 +337,7 @@ pub fn audit_manifest(
                 "OSDF_MANIFEST_MISSING_OBJECT",
                 format!("declared object missing: {}", object.path),
             );
-            break;
+            continue;
         };
 
         if actual.len() as u64 != object.bytes {
@@ -351,7 +352,6 @@ pub fn audit_manifest(
                     actual.len()
                 ),
             );
-            break;
         }
 
         let expected = match parse_digest(&object.digest) {
@@ -363,7 +363,7 @@ pub fn audit_manifest(
                     "OSDF_MANIFEST_HASH_MISMATCH",
                     err.to_string(),
                 );
-                break;
+                continue;
             }
         };
         let computed_entry = compute_object_entry(&object.path, &object.object_type, actual);
@@ -376,17 +376,16 @@ pub fn audit_manifest(
                     "OSDF_MANIFEST_HASH_MISMATCH",
                     err.to_string(),
                 );
-                break;
+                continue;
             }
         };
-        if expected != computed {
+        if !digests_equal(&expected, &computed) {
             hashes_match = false;
             crate::report::record_error(
                 builder,
                 "OSDF_MANIFEST_HASH_MISMATCH",
                 format!("digest mismatch for `{}`", object.path),
             );
-            break;
         }
     }
 
@@ -438,7 +437,6 @@ pub fn audit_manifest(
                 "OSDF_MANIFEST_UNDECLARED_OBJECT",
                 format!("undeclared package object: {path}"),
             );
-            break;
         }
     }
 
@@ -453,15 +451,14 @@ pub fn audit_manifest(
         None,
     );
 
-    if !hashes_match || !undeclared_free {
-        return Some(manifest);
-    }
-
     let manifest_bytes = container.get(MANIFEST_PATH).unwrap_or_default();
     if let Ok(parsed_manifest) =
         serde_json::from_slice::<crate::types::PackageManifest>(manifest_bytes)
     {
-        if compute_manifest_digest(&parsed_manifest) != manifest.manifest_digest {
+        if !digest_strings_equal(
+            &compute_manifest_digest(&parsed_manifest),
+            &manifest.manifest_digest,
+        ) {
             crate::report::record_error(
                 builder,
                 "OSDF_MANIFEST_HASH_MISMATCH",
@@ -472,7 +469,7 @@ pub fn audit_manifest(
 
     let computed_root = merkle_root(&manifest.objects);
     if let Ok(declared_root) = parse_digest(&manifest.revision_root_hash) {
-        if computed_root != declared_root {
+        if !digests_equal(&computed_root, &declared_root) {
             crate::report::record_error(
                 builder,
                 "OSDF_MANIFEST_HASH_MISMATCH",

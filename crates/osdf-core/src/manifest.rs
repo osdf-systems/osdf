@@ -1,7 +1,9 @@
 use crate::canonical::canonicalize_json;
 use crate::constants::{ENVELOPE_PATH, HEADER_PATH, HEADER_SIZE, MANIFEST_PATH};
 use crate::container::PackageContainer;
-use crate::crypto::{format_digest, object_digest, parse_digest};
+use crate::crypto::{
+    digest_strings_equal, digests_equal, format_digest, object_digest, parse_digest,
+};
 use crate::error::{OsdfError, Result};
 use crate::merkle::merkle_root;
 use crate::types::{ManifestObject, PackageManifest, PublicEnvelope};
@@ -77,19 +79,26 @@ pub fn verify_manifest_objects(
     container: &PackageContainer,
     manifest: &PackageManifest,
 ) -> Result<()> {
+    let mut failures = Vec::new();
+
     for object in &manifest.objects {
         if object.path == MANIFEST_PATH {
-            return Err(OsdfError::Integrity(
+            failures.push(OsdfError::Integrity(
                 "manifest must not include itself in objects[] (use manifestDigest)".to_string(),
             ));
+            continue;
         }
 
-        let actual = container.get(&object.path).ok_or_else(|| {
-            OsdfError::Integrity(format!("declared object missing: {}", object.path))
-        })?;
+        let Some(actual) = container.get(&object.path) else {
+            failures.push(OsdfError::Integrity(format!(
+                "declared object missing: {}",
+                object.path
+            )));
+            continue;
+        };
 
         if actual.len() as u64 != object.bytes {
-            return Err(OsdfError::Integrity(format!(
+            failures.push(OsdfError::Integrity(format!(
                 "byte length mismatch for `{}`: expected {}, got {}",
                 object.path,
                 object.bytes,
@@ -97,28 +106,48 @@ pub fn verify_manifest_objects(
             )));
         }
 
-        let expected = parse_digest(&object.digest)?;
+        let expected = match parse_digest(&object.digest) {
+            Ok(digest) => digest,
+            Err(err) => {
+                failures.push(err);
+                continue;
+            }
+        };
         let computed = if object.path == HEADER_PATH {
             header_object_digest(actual)
         } else {
             let computed_entry = compute_object_entry(&object.path, &object.object_type, actual);
-            parse_digest(&computed_entry.digest)?
+            match parse_digest(&computed_entry.digest) {
+                Ok(digest) => digest,
+                Err(err) => {
+                    failures.push(err);
+                    continue;
+                }
+            }
         };
 
-        if expected != computed {
-            return Err(OsdfError::Integrity(format!(
+        if !digests_equal(&expected, &computed) {
+            failures.push(OsdfError::Integrity(format!(
                 "digest mismatch for `{}`",
                 object.path
             )));
         }
     }
 
-    let manifest_bytes = container
-        .get(MANIFEST_PATH)
-        .ok_or_else(|| OsdfError::Integrity(format!("missing `{MANIFEST_PATH}`")))?;
-    let parsed_manifest: PackageManifest = serde_json::from_slice(manifest_bytes)?;
-    if compute_manifest_digest(&parsed_manifest) != manifest.manifest_digest {
-        return Err(OsdfError::Integrity("manifestDigest mismatch".to_string()));
+    if let Some(manifest_bytes) = container.get(MANIFEST_PATH) {
+        match serde_json::from_slice::<PackageManifest>(manifest_bytes) {
+            Ok(parsed_manifest) => {
+                if !digest_strings_equal(
+                    &compute_manifest_digest(&parsed_manifest),
+                    &manifest.manifest_digest,
+                ) {
+                    failures.push(OsdfError::Integrity("manifestDigest mismatch".to_string()));
+                }
+            }
+            Err(err) => failures.push(OsdfError::Manifest(format!("manifest JSON invalid: {err}"))),
+        }
+    } else {
+        failures.push(OsdfError::Integrity(format!("missing `{MANIFEST_PATH}`")));
     }
 
     let mut allowed = manifest
@@ -130,14 +159,14 @@ pub fn verify_manifest_objects(
 
     for path in [HEADER_PATH] {
         if !allowed.contains(path) {
-            return Err(OsdfError::Integrity(format!(
+            failures.push(OsdfError::Integrity(format!(
                 "required object `{path}` must appear in signed manifest objects[]"
             )));
         }
     }
 
     if container.get(ENVELOPE_PATH).is_none() {
-        return Err(OsdfError::Integrity(format!(
+        failures.push(OsdfError::Integrity(format!(
             "missing required `{ENVELOPE_PATH}`"
         )));
     }
@@ -145,21 +174,29 @@ pub fn verify_manifest_objects(
 
     for path in container.paths() {
         if !allowed.contains(path.as_str()) {
-            return Err(OsdfError::Integrity(format!(
+            failures.push(OsdfError::Integrity(format!(
                 "undeclared package object: {path}"
             )));
         }
     }
 
     let computed_root = merkle_root(&manifest.objects);
-    let declared_root = parse_digest(&manifest.revision_root_hash)?;
-    if computed_root != declared_root {
-        return Err(OsdfError::Integrity(
-            "revision Merkle root mismatch".to_string(),
-        ));
+    match parse_digest(&manifest.revision_root_hash) {
+        Ok(declared_root) => {
+            if !digests_equal(&computed_root, &declared_root) {
+                failures.push(OsdfError::Integrity(
+                    "revision Merkle root mismatch".to_string(),
+                ));
+            }
+        }
+        Err(err) => failures.push(err),
     }
 
-    Ok(())
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.into_iter().next().expect("failures non-empty"))
+    }
 }
 
 fn looks_like_json_object_type(object_type: &str, path: &str) -> bool {

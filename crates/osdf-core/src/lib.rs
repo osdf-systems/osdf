@@ -13,6 +13,8 @@ pub mod signature;
 pub mod types;
 pub mod verify;
 pub mod verify_audit;
+pub mod verify_fast;
+pub mod verify_profile;
 
 #[cfg(feature = "native-create")]
 pub mod build;
@@ -48,6 +50,11 @@ pub use verify::{
 };
 #[cfg(feature = "native-create")]
 pub use verify::{verify_package_path_with_config, verify_package_path_with_ledger};
+pub use verify_fast::{
+    fast_fail_from_code, fast_fail_from_error, parse_package, verify_container_fast,
+    verify_package_bytes_fast, verify_parsed_package_fast,
+};
+pub use verify_profile::{FastFailCode, FastVerifyResult, ParsedPackage, VerificationProfile};
 
 #[cfg(feature = "native-create")]
 pub use build::{

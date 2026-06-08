@@ -1,4 +1,5 @@
 use sha2::{Digest, Sha256};
+use subtle::ConstantTimeEq;
 
 use crate::constants::{
     DOMAIN_LEAF, DOMAIN_NODE, DOMAIN_OBJECT, DOMAIN_REVISION, DOMAIN_REV_EVENT,
@@ -85,6 +86,19 @@ pub fn format_digest(digest: &[u8; 32]) -> String {
     format!("sha256:{}", hex::encode(digest))
 }
 
+/// Constant-time equality for 32-byte digests (timing side-channel resistant).
+pub fn digests_equal(left: &[u8; 32], right: &[u8; 32]) -> bool {
+    left.ct_eq(right).into()
+}
+
+/// Compare two `sha256:…` digest strings using constant-time byte equality when both parse.
+pub fn digest_strings_equal(left: &str, right: &str) -> bool {
+    match (parse_digest(left), parse_digest(right)) {
+        (Ok(left), Ok(right)) => digests_equal(&left, &right),
+        _ => false,
+    }
+}
+
 pub fn parse_digest(value: &str) -> Result<[u8; 32]> {
     let Some(hex_part) = value.strip_prefix("sha256:") else {
         return Err(OsdfError::Integrity(format!(
@@ -107,5 +121,13 @@ mod tests {
         let digest = sha256_bytes(b"hello");
         let formatted = format_digest(&digest);
         assert_eq!(parse_digest(&formatted).unwrap(), digest);
+    }
+
+    #[test]
+    fn digests_equal_matches_eq() {
+        let a = sha256_bytes(b"a");
+        let b = sha256_bytes(b"b");
+        assert!(digests_equal(&a, &a));
+        assert!(!digests_equal(&a, &b));
     }
 }

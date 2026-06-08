@@ -90,7 +90,6 @@ Write-Beat "9b" "Forensic report export [partial]"
 Write-Host "Browser verifier: drop file at http://localhost:8081/web/ and use Export report."
 Write-Host "CLI JSON: osdf verify <file> --ledger-config ... --json"
 
-
 Write-Host ""
 Write-Host "--- Summary ---" -ForegroundColor Green
 Write-Host "WORKING NOW:"

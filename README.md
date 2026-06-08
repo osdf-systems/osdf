@@ -191,7 +191,7 @@ osdf demo safety --write-readme-assets docs/assets
 | **B.3** | In progress | Latest-revision registry; freshness/revocation next |
 | **Demo package** | Active | Scripted end-to-end gateway demo ([plan](specs/demo-package.md)) |
 
-**Profile note:** This build implements **OSDF-Core** with inline payload mode. Encrypted packages, hosted ledger services, and editors are planned for later phases.
+**Profile note:** This build implements **OSDF-Core** with inline payload mode. Encrypted packages and live ledger services are planned for later phases.
 
 ---
 

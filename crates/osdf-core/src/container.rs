@@ -6,7 +6,7 @@ use zip::write::SimpleFileOptions;
 use zip::{ZipArchive, ZipWriter};
 
 use crate::constants::{
-    HEADER_PATH, HEADER_SIZE, HEADER_VERSION, MAGIC, MAX_COMPRESSION_RATIO, MAX_ENTRIES,
+    suspicious_compression_ratio, HEADER_PATH, HEADER_SIZE, HEADER_VERSION, MAGIC, MAX_ENTRIES,
     MAX_UNCOMPRESSED_BYTES,
 };
 use crate::error::{OsdfError, Result};
@@ -65,7 +65,7 @@ impl PackageContainer {
             } else {
                 file.size().saturating_div(file.compressed_size())
             };
-            if compression_ratio > MAX_COMPRESSION_RATIO {
+            if suspicious_compression_ratio(file.size(), file.compressed_size()) {
                 return Err(OsdfError::Container(format!(
                     "compression bomb suspected at `{normalized}` (ratio {compression_ratio})"
                 )));
@@ -201,7 +201,7 @@ pub fn normalize_zip_path(raw: &str) -> Result<String> {
 }
 
 fn zip_options_for(path: &str) -> SimpleFileOptions {
-    if path == HEADER_PATH {
+    if path == HEADER_PATH || path.ends_with(".json") {
         SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored)
     } else {
         SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated)

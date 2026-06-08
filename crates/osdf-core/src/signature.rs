@@ -6,7 +6,7 @@ use rand::rngs::OsRng;
 
 use crate::canonical::canonicalize_json;
 use crate::container::PackageContainer;
-use crate::crypto::parse_digest;
+use crate::crypto::{digests_equal, parse_digest};
 use crate::error::{OsdfError, Result};
 use crate::manifest::parse_manifest;
 use crate::types::SignatureEnvelope;
@@ -54,69 +54,92 @@ pub fn parse_signature(container: &PackageContainer, revision: u32) -> Result<Si
     Ok(serde_json::from_slice(bytes)?)
 }
 
+fn verify_signature_envelope(
+    envelope: &SignatureEnvelope,
+    manifest: &crate::types::PackageManifest,
+) -> Result<()> {
+    if envelope.document_id != manifest.document_id {
+        return Err(OsdfError::Signature(
+            "signature document_id mismatch".to_string(),
+        ));
+    }
+
+    if envelope.algorithm != "Ed25519" {
+        return Err(OsdfError::Signature(format!(
+            "unsupported signature algorithm: {}",
+            envelope.algorithm
+        )));
+    }
+
+    let commitment = parse_digest(&envelope.revision_commitment)?;
+    let manifest_commitment = parse_digest(&manifest.public_commitment)?;
+    if envelope.revision == manifest.revision && !digests_equal(&commitment, &manifest_commitment) {
+        return Err(OsdfError::Signature(
+            "signature revision commitment mismatch".to_string(),
+        ));
+    }
+
+    let verifying_key = verifying_key_from_urn(&envelope.signer_key)?;
+    let mut unsigned = envelope.clone();
+    unsigned.signature = String::new();
+    let payload = canonicalize_json(&serde_json::to_value(&unsigned)?)?;
+
+    let signature_bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
+        .decode(&envelope.signature)
+        .map_err(|err| OsdfError::Signature(format!("invalid signature encoding: {err}")))?;
+    let signature = Signature::from_slice(&signature_bytes)
+        .map_err(|err| OsdfError::Signature(format!("invalid ed25519 signature bytes: {err}")))?;
+
+    verifying_key
+        .verify(&payload, &signature)
+        .map_err(|err| OsdfError::Signature(format!("signature verification failed: {err}")))?;
+
+    if envelope.scope.mode != "document-except-fields" && !envelope.scope.mutable_fields.is_empty()
+    {
+        return Err(OsdfError::Signature(
+            "Phase A supports only full-document or document-except-fields scopes".to_string(),
+        ));
+    }
+
+    Ok(())
+}
+
 pub fn verify_signatures(container: &PackageContainer) -> Result<Vec<SignatureEnvelope>> {
     let manifest = parse_manifest(container)?;
     let mut verified = Vec::new();
+    let mut failures = Vec::new();
 
     for path in container.paths() {
         if !path.starts_with("signatures/") || !path.ends_with(".sig.json") {
             continue;
         }
 
-        let bytes = container
-            .get(path)
-            .ok_or_else(|| OsdfError::Signature(format!("missing `{path}`")))?;
-        let envelope: SignatureEnvelope = serde_json::from_slice(bytes)?;
+        let Some(bytes) = container.get(path) else {
+            failures.push(OsdfError::Signature(format!("missing `{path}`")));
+            continue;
+        };
 
-        if envelope.document_id != manifest.document_id {
-            return Err(OsdfError::Signature(
-                "signature document_id mismatch".to_string(),
-            ));
+        let envelope: SignatureEnvelope = match serde_json::from_slice(bytes) {
+            Ok(envelope) => envelope,
+            Err(err) => {
+                failures.push(OsdfError::Signature(format!(
+                    "invalid signature JSON in `{path}`: {err}"
+                )));
+                continue;
+            }
+        };
+
+        match verify_signature_envelope(&envelope, &manifest) {
+            Ok(()) => verified.push(envelope),
+            Err(err) => failures.push(err),
         }
-
-        if envelope.algorithm != "Ed25519" {
-            return Err(OsdfError::Signature(format!(
-                "unsupported signature algorithm: {}",
-                envelope.algorithm
-            )));
-        }
-
-        let commitment = parse_digest(&envelope.revision_commitment)?;
-        let manifest_commitment = parse_digest(&manifest.public_commitment)?;
-        if envelope.revision == manifest.revision && commitment != manifest_commitment {
-            return Err(OsdfError::Signature(
-                "signature revision commitment mismatch".to_string(),
-            ));
-        }
-
-        let verifying_key = verifying_key_from_urn(&envelope.signer_key)?;
-        let mut unsigned = envelope.clone();
-        unsigned.signature = String::new();
-        let payload = canonicalize_json(&serde_json::to_value(&unsigned)?)?;
-
-        let signature_bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
-            .decode(&envelope.signature)
-            .map_err(|err| OsdfError::Signature(format!("invalid signature encoding: {err}")))?;
-        let signature = Signature::from_slice(&signature_bytes).map_err(|err| {
-            OsdfError::Signature(format!("invalid ed25519 signature bytes: {err}"))
-        })?;
-
-        verifying_key
-            .verify(&payload, &signature)
-            .map_err(|err| OsdfError::Signature(format!("signature verification failed: {err}")))?;
-
-        if envelope.scope.mode != "document-except-fields"
-            && !envelope.scope.mutable_fields.is_empty()
-        {
-            return Err(OsdfError::Signature(
-                "Phase A supports only full-document or document-except-fields scopes".to_string(),
-            ));
-        }
-
-        verified.push(envelope);
     }
 
-    Ok(verified)
+    if failures.is_empty() {
+        Ok(verified)
+    } else {
+        Err(failures.into_iter().next().expect("failures non-empty"))
+    }
 }
 
 #[cfg(all(test, feature = "native-create"))]
