@@ -8,20 +8,19 @@
 
 ---
 
-## The 10-step demo (Section 23.1)
+## The 9-step demo (Section 23.1)
 
 | # | Demo beat | What the audience must see | Target month | Status |
 | --- | --- | --- | --- | --- |
-| 1 | Create contract revision 1 | Agency issues blank contract `.osdf` | M1 | Partial — use `taxes-template.osdf` or generate `contract-rev1.osdf` |
+| 1 | Create contract revision 1 | Agency issues blank contract `.osdf` | M1 | Partial - use `taxes-template.osdf` or generate `contract-rev1.osdf` |
 | 2 | Sign revision 1 | Ed25519 signature + revision chain PASS | M1 | Done |
-| 3 | Submit to trusted log | Ledger append + inclusion proof in package | M1 | Done — `ledger append` / `attach-proof` |
+| 3 | Submit to trusted log | Ledger append + inclusion proof in package | M1 | Done - `ledger append` / `attach-proof` |
 | 4 | Gateway **send** event | Signed `DOCUMENT_TRANSMITTED` receipt (outbound mail/upload) | M2 | Not started |
 | 5 | Gateway **receipt** event | Signed `DOCUMENT_RECEIVED` receipt (inbound) | M2 | Not started |
-| 6 | Create revision 2 | Counterparty returns signed revision 2 | M1 | Partial — `Taxes.osdf` / `commit-revision` |
-| 7 | Tamper with a fixture | Deliberately broken package (undeclared object, bad hash) | M1 | Done — `fixtures/invalid/*` |
+| 6 | Create revision 2 | Counterparty returns signed revision 2 | M1 | Partial - `Taxes.osdf` / `commit-revision` |
+| 7 | Tamper with a fixture | Deliberately broken package (undeclared object, bad hash) | M1 | Done - `fixtures/invalid/*` |
 | 8 | **Quarantine** tampered file | Gateway verdict `QUARANTINE` / `REJECT`, not silent delivery | M2 | Not started |
-| 9 | Timeline + forensic report | Ordered events + exportable JSON report for auditors | M2–M3 | Partial — verifier export; no timeline UI |
-| 10 | Enterprise deny (stub) | Unauthorized device → decrypt denied before plaintext | M3 | Stub only — mock UI + event, not full Companion |
+| 9 | Timeline + forensic report | Ordered events + exportable JSON report for auditors | M2-M3 | Partial - verifier export; no timeline UI |
 
 ---
 
@@ -41,7 +40,7 @@ Incoming .osdf
   → SIEM / timeline event
 ```
 
-The browser **Transparent Gateway** (`gateway/`) proves viewer UX. The **demonstration package** adds the enforcement path investors care about: **email/upload ingress cannot bypass verification**.
+The browser **Transparent Gateway** (`gateway/`) proves viewer UX. The **demonstration package** adds the enforcement path: **email/upload ingress cannot bypass verification**.
 
 ---
 
@@ -74,7 +73,7 @@ The browser **Transparent Gateway** (`gateway/`) proves viewer UX. The **demonst
 **Policy example** (Supplemental §6.3):
 
 ```yaml
-name: government-inbound-osdf
+name: inbound-osdf-demo
 require:
   container_safe: true
   manifest_integrity: true
@@ -87,16 +86,16 @@ on_failure:
 
 **Exit criteria:** Tampered attachment → `QUARANTINE` via HTTP API; timeline shows 5+ signed events.
 
-### Month 3 — “Live freshness + forensic close” (credibility)
+### Month 3 - "Live freshness + forensic close" (credibility)
 
-**Goal:** Step 10 stub + live ledger; polish for pilot recordings.
+**Goal:** Live ledger; polish for recorded walkthroughs.
 
 | Week | Deliverable |
 | --- | --- |
-| 9 | `osdf ledger serve` — live latest-revision lookup (`specs/phase-d-m2-hosted.md`) |
+| 9 | `osdf ledger serve` - live latest-revision lookup (`specs/phase-d-m2-hosted.md`) |
 | 10 | Verifier/gateway `onlineEnhanced` mode when registry URL configured |
 | 11 | Forensic export bundle: verification report + timeline + policy snapshot |
-| 12 | Enterprise **deny stub**: gateway page “unauthorized device” panel (no real KMS) + `OSDF_AUTH_DEVICE_NOT_ENROLLED` event in timeline |
+| 12 | Recorded end-to-end walkthrough script + offline export sample |
 
 **Exit criteria:** Replay demo with **live** registry (no stale trust JSON); export one ZIP auditors can open offline.
 
@@ -160,12 +159,8 @@ From Threat Plan Appendix A — minimum set for §23:
 Do **not** build yet:
 
 - Sales site / pricing experiments
-- Full Companion Agent, Key Broker, HSM integration
 - Production SMTP transport agents (M365 milter, etc.)
-- HIPAA/CJIS certification claims
 - Multi-ledger federation, TUF trust updates, witness gossip
-
-Step 10 is a **stub** (UI + event type), not Phase E encryption.
 
 ---
 

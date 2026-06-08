@@ -37,7 +37,7 @@ In scope:
 
 Out of scope (for now):
 
-- Missing enterprise features not yet shipped (Companion, Key Broker, hosted ledger)
+- Missing features not yet shipped (live hosted ledger service, live revocation)
 - Social engineering or physical access
 - Authorized user screenshot or transcription of plaintext
 

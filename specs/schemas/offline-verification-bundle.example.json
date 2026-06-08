@@ -1,0 +1,13 @@
+{
+  "format": "OSDF-Offline-Verification-Bundle",
+  "formatVersion": "1.0-draft",
+  "exportedAt": "2026-06-07T15:30:00Z",
+  "exporterVersion": "0.1.0-alpha.2",
+  "verificationProfile": "OSDF-Core-JSON portable (full report)",
+  "packageSha256": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "packageFileName": "package.osdf",
+  "reportFileName": "verification-report.json",
+  "trustSnapshotFileName": "trust-snapshot.json",
+  "overallResult": "PASS",
+  "notes": "Trust snapshot pins ledger and identity keys as of export; live freshness not re-checked offline."
+}

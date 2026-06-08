@@ -14,7 +14,7 @@ pub enum VerificationProfile {
     CoreJsonParsedFast,
     /// Phase II: canonical binary manifest encoding (not implemented in public alpha).
     CoreBinaryPortable,
-    /// Phase II/III: compact authorization capsule for high-QPS PDP/PEP (not implemented).
+    /// Planned: compact authorization token profile (not implemented).
     ZtTokenV1,
 }
 

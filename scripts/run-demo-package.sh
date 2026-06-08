@@ -91,10 +91,6 @@ write_beat "9b" "Forensic report export [partial]"
 echo "Browser verifier: drop file at http://localhost:8081/web/ and use Export report."
 echo "CLI JSON: osdf verify <file> --ledger-config ... --json"
 
-write_beat 10 "Enterprise deny unauthorized device [Month 3 stub]"
-echo "Planned: mock Companion deny panel + OSDF_AUTH_DEVICE_NOT_ENROLLED in timeline."
-echo "Not full encryption - stub only for investor walkthrough."
-
 echo
 echo "--- Summary ---"
 echo "WORKING NOW:"

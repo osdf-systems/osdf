@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/osdf-systems/osdf/specs/schemas/offline-verification-bundle.schema.json",
+  "title": "OSDF Offline Verification Bundle Manifest",
+  "description": "Draft schema for bundle manifest.json. Not enforced by public alpha verifier.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "formatVersion",
+    "exportedAt",
+    "exporterVersion",
+    "verificationProfile",
+    "packageSha256",
+    "packageFileName",
+    "reportFileName",
+    "trustSnapshotFileName",
+    "overallResult"
+  ],
+  "properties": {
+    "format": {
+      "const": "OSDF-Offline-Verification-Bundle"
+    },
+    "formatVersion": {
+      "type": "string",
+      "pattern": "^1\\.0"
+    },
+    "exportedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "exporterVersion": {
+      "type": "string",
+      "description": "Semver of osdf-core used at export"
+    },
+    "verificationProfile": {
+      "type": "string",
+      "description": "Human-readable profile label, e.g. OSDF-Core-JSON portable (full report)"
+    },
+    "packageSha256": {
+      "type": "string",
+      "pattern": "^sha256:"
+    },
+    "packageFileName": {
+      "type": "string",
+      "const": "package.osdf"
+    },
+    "reportFileName": {
+      "type": "string",
+      "const": "verification-report.json"
+    },
+    "trustSnapshotFileName": {
+      "type": "string",
+      "const": "trust-snapshot.json"
+    },
+    "overallResult": {
+      "type": "string",
+      "enum": ["PASS", "FAIL", "WARNING"]
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

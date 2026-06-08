@@ -90,10 +90,6 @@ Write-Beat "9b" "Forensic report export [partial]"
 Write-Host "Browser verifier: drop file at http://localhost:8081/web/ and use Export report."
 Write-Host "CLI JSON: osdf verify <file> --ledger-config ... --json"
 
-Write-Beat 10 "Enterprise deny unauthorized device [Month 3 stub]"
-Write-Host "Planned: mock Companion deny panel + OSDF_AUTH_DEVICE_NOT_ENROLLED in timeline."
-Write-Host "Not full encryption - stub only for investor walkthrough."
-
 Write-Host ""
 Write-Host "--- Summary ---" -ForegroundColor Green
 Write-Host "WORKING NOW:"

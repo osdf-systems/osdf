@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/osdf-systems/osdf/specs/schemas/transformation-receipt.schema.json",
+  "title": "OSDF Transformation Receipt",
+  "description": "Draft schema. Not enforced by public alpha verifier.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "formatVersion",
+    "transformationId",
+    "documentId",
+    "targetRevision",
+    "sourceDocumentId",
+    "sourceRevision",
+    "sourceRevisionRootHash",
+    "sourcePublicCommitment",
+    "operation",
+    "operatorKey",
+    "operatedAt",
+    "signature"
+  ],
+  "properties": {
+    "format": {
+      "const": "OSDF-Transformation"
+    },
+    "formatVersion": {
+      "type": "string",
+      "pattern": "^1\\.0"
+    },
+    "transformationId": {
+      "type": "string",
+      "pattern": "^urn:osdf:transform:"
+    },
+    "documentId": {
+      "type": "string",
+      "pattern": "^urn:osdf:doc:"
+    },
+    "targetRevision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "sourceDocumentId": {
+      "type": "string",
+      "pattern": "^urn:osdf:doc:"
+    },
+    "sourceRevision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sourceRevisionRootHash": {
+      "type": "string",
+      "pattern": "^sha256:"
+    },
+    "sourcePublicCommitment": {
+      "type": "string",
+      "pattern": "^sha256:"
+    },
+    "operation": {
+      "type": "string",
+      "enum": ["submit", "redact", "extract", "merge", "export", "render"]
+    },
+    "operationParams": {
+      "type": "object"
+    },
+    "operatorKey": {
+      "type": "string",
+      "pattern": "^urn:osdf:key:"
+    },
+    "operatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "targetManifestDigest": {
+      "type": "string",
+      "pattern": "^sha256:"
+    },
+    "signature": {
+      "type": "string",
+      "description": "URL-safe base64 Ed25519 over canonical JSON with signature cleared"
+    }
+  }
+}
