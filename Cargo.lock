@@ -650,6 +650,7 @@ dependencies = [
  "serde_json",
  "serde_json_canonicalizer",
  "sha2",
+ "subtle",
  "thiserror",
  "uuid",
  "walkdir",

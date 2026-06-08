@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::canonical::canonicalize_json;
 use crate::container::PackageContainer;
-use crate::crypto::{format_digest, parse_digest};
+use crate::crypto::{digest_strings_equal, digests_equal, format_digest, parse_digest};
 use crate::error::{OsdfError, Result};
 use crate::revision::parse_revision;
 use crate::signature::verifying_key_from_urn;
@@ -345,7 +345,10 @@ pub fn verify_transparency_proof(
         return Ok(());
     }
 
-    if proof.revision_event_hash != expected_revision_event_hash {
+    if !digest_strings_equal(
+        &proof.revision_event_hash,
+        expected_revision_event_hash,
+    ) {
         return Err(OsdfError::Integrity(
             "transparency proof revisionEventHash mismatch".to_string(),
         ));
@@ -360,7 +363,7 @@ pub fn verify_transparency_proof(
     let computed_root = verify_inclusion_proof(&leaf, proof.leaf_index, proof.tree_size, &path)?;
 
     let declared_root = parse_digest(&proof.signed_tree_head.root_hash)?;
-    if computed_root != declared_root {
+    if !digests_equal(&computed_root, &declared_root) {
         return Err(OsdfError::Integrity(
             "transparency inclusion proof does not match signed tree head".to_string(),
         ));
