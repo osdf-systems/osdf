@@ -183,11 +183,7 @@ fn verify_ledger_fast(
     verify_transparency_proof(&proof, &expected_hash, ledger)
         .map_err(|_| FastFailCode::LedgerProofInvalid)?;
 
-    if ledger.policy == LedgerPolicy::Required {
-        Ok(())
-    } else {
-        Ok(())
-    }
+    Ok(())
 }
 
 fn verify_latest_revision_fast(
@@ -199,22 +195,16 @@ fn verify_latest_revision_fast(
         return Ok(());
     }
 
-    let local_hash = revision_event_hash_for(container, manifest.revision)
+    revision_event_hash_for(container, manifest.revision)
         .map_err(|_| FastFailCode::RevisionChainInvalid)?;
 
-    let Some(registry_entry) = lookup_latest_revision(ledger, &manifest.document_id) else {
+    if lookup_latest_revision(ledger, &manifest.document_id).is_none() {
         return Err(FastFailCode::LedgerProofInvalid);
-    };
-
-    if registry_entry.revision == manifest.revision
-        && registry_entry.revision_event_hash == local_hash
-    {
-        Ok(())
-    } else {
-        // Full verifier reports WARNING for outdated; fast path treats only Required policy
-        // on missing registry as fail. Outdated remains Pass — quarantine via full rerun.
-        Ok(())
     }
+
+    // Full verifier reports WARNING for outdated; fast path treats only missing registry as fail.
+    // Outdated remains Pass - quarantine via full rerun.
+    Ok(())
 }
 
 pub fn fast_fail_from_error(err: &OsdfError) -> FastFailCode {
