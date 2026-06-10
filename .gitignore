@@ -18,6 +18,13 @@ Thumbs.db
 # Locally generated OSDF test files
 /*.osdf
 
+# Local benchmark artifacts
+/benchmarks/
+/docs/assets/benchmarks/hyperfine-results.json
+
+# Optional large OpenTDF golden file (fetch script)
+/fixtures/benchmarks/opentdf/big-java-*.tdf
+
 # Local ledger dev artifacts
 /ledger.json
 /ledger-key.json

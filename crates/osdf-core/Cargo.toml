@@ -28,6 +28,12 @@ zip.workspace = true
 
 [dev-dependencies]
 walkdir.workspace = true
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "verify_throughput"
+harness = false
+required-features = ["native-create"]
 
 [[example]]
 name = "scale_bench"

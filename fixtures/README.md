@@ -25,6 +25,10 @@ Committed test packages for CLI, native, and WASM verification parity.
 | `invalid/fake-parent-commitment.osdf` | Revision — parent commitment mismatch |
 | `invalid/deleted-parent-revision.osdf` | Revision — missing revision record |
 
+## OpenTDF comparison (benchmarks)
+
+Third-party TDF golden files for [docs/benchmarks.md](../docs/benchmarks.md): see [benchmarks/opentdf/](benchmarks/opentdf/README.md).
+
 ## Regenerate
 
 ```bash

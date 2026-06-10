@@ -5,10 +5,7 @@
 //!   --profile full --objects 500 --bytes 65536 --threads 1 --seconds 10
 //!
 //! cargo run --release -p osdf-core --example scale_bench -- \
-//!   --profile fast --objects 10 --bytes 1024 --threads 1 --seconds 10
-//!
-//! cargo run --release -p osdf-core --example scale_bench -- \
-//!   --profile parsed --objects 500 --bytes 65536 --threads 8 --seconds 10
+//!   --auto --objects 10 --bytes 1024 --seconds 10
 //! ```
 
 use std::path::PathBuf;
@@ -18,10 +15,10 @@ use std::time::{Duration, Instant};
 
 use osdf_core::constants::{MAX_ENTRIES, MAX_UNCOMPRESSED_BYTES};
 use osdf_core::{
-    commit_revision, create_package, generate_signing_key, parse_package, verify_package_bytes,
-    verify_package_bytes_fast, verify_parsed_package_fast, write_package, CommitOptions,
-    CreateOptions, FastVerifyResult, PackageContainer, VerificationProfile, VerificationStatus,
-    VerifierConfig,
+    commit_revision, create_package, generate_signing_key, parse_package, peek_package_stats,
+    verify_package_bytes, verify_package_bytes_fast, verify_parsed_package_fast, write_package,
+    CommitOptions, CreateOptions, FastVerifyResult, HardwareSnapshot, PackageContainer,
+    VerificationProfile, VerificationStatus, VerifierConfig, VerifyIntent, VerifyPlan,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -50,14 +47,30 @@ impl BenchProfile {
             )),
         }
     }
+
+    fn from_verification_profile(profile: VerificationProfile) -> Result<Self, String> {
+        match profile {
+            VerificationProfile::CoreJsonPortableFull => Ok(Self::Full),
+            VerificationProfile::CoreJsonPortableFast => Ok(Self::Fast),
+            VerificationProfile::CoreJsonParsedFast => Ok(Self::Parsed),
+            other => Err(format!(
+                "profile `{}` is not supported by scale_bench",
+                other.label()
+            )),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
 struct Config {
-    profile: BenchProfile,
+    profile: Option<BenchProfile>,
     object_count: usize,
     object_bytes: usize,
-    threads: usize,
+    threads: Option<usize>,
+    auto_threads: bool,
+    auto_plan: bool,
+    thread_probe: bool,
+    memory_gib: Option<u64>,
     seconds: f64,
     warmup: usize,
     write_path: Option<PathBuf>,
@@ -71,14 +84,18 @@ fn main() {
 }
 
 fn run() -> Result<(), String> {
-    let config = parse_args()?;
+    let mut config = parse_args()?;
+    if !config.auto_plan && !config.auto_threads {
+        if config.profile.is_none() {
+            config.profile = Some(BenchProfile::Full);
+        }
+        if config.threads.is_none() {
+            config.threads = Some(1);
+        }
+    }
+
     validate_config(&config)?;
 
-    eprintln!(
-        "Profile: {} (ZIP parse each eval: {})",
-        config.profile.verification_profile().label(),
-        config.profile.verification_profile().parses_zip()
-    );
     eprintln!(
         "Building signed package: {} objects × {} bytes payload …",
         config.object_count, config.object_bytes
@@ -101,29 +118,92 @@ fn run() -> Result<(), String> {
         eprintln!("Wrote fixture to {}", path.display());
     }
 
-    sanity_check(&config.profile, &bytes)?;
+    let hardware = {
+        let mut hw = HardwareSnapshot::detect();
+        if let Some(gib) = config.memory_gib {
+            hw = hw.with_usable_memory_bytes(gib * 1024 * 1024 * 1024);
+        }
+        hw
+    };
+    let package_stats = peek_package_stats(&bytes).map_err(|code| format!("stats: {code:?}"))?;
 
-    if config.profile == BenchProfile::Parsed {
+    if config.auto_plan || config.auto_threads {
+        let intent = if config.auto_plan {
+            VerifyIntent::MaxThroughput
+        } else {
+            intent_for_profile(config.profile.ok_or("internal: profile missing")?)
+        };
+        let verifier = VerifierConfig::default();
+        let mut plan = VerifyPlan::recommend(&hardware, &package_stats, intent);
+        if config.auto_plan {
+            config.profile = Some(BenchProfile::from_verification_profile(plan.profile)?);
+        } else {
+            plan.profile = config
+                .profile
+                .ok_or("internal: profile missing")?
+                .verification_profile();
+        }
+        if config.thread_probe {
+            plan = plan.with_thread_probe(&hardware, &package_stats, &bytes, &verifier);
+        }
+        if config.auto_threads || config.auto_plan {
+            config.threads = Some(plan.threads);
+        }
+        eprintln!("\n--- Adaptive plan ---");
+        eprintln!("  profile:  {}", plan.profile.label());
+        eprintln!("  threads:  {}", plan.threads);
+        eprintln!(
+            "  hardware: logical={} physical={} mem={:.1} GiB budget",
+            hardware.logical_cores,
+            hardware.physical_cores,
+            hardware.usable_memory_bytes as f64 / (1024.0 * 1024.0 * 1024.0),
+        );
+        eprintln!(
+            "  package:  tier={:?} archive={} bytes objects={} payload={}",
+            package_stats.cost_tier,
+            package_stats.archive_bytes,
+            package_stats.object_count,
+            package_stats.declared_payload_bytes,
+        );
+        eprintln!("  reason:   {}", plan.reason);
+    }
+
+    let profile = config
+        .profile
+        .ok_or("missing --profile (or use --auto for adaptive profile + threads)")?;
+    let threads = config
+        .threads
+        .ok_or("missing --threads (or use --auto-threads / --auto)")?;
+
+    eprintln!(
+        "\nProfile: {} (ZIP parse each eval: {})",
+        profile.verification_profile().label(),
+        profile.verification_profile().parses_zip()
+    );
+
+    sanity_check(&profile, &bytes)?;
+
+    if profile == BenchProfile::Parsed {
         let parsed = parse_package(&bytes).map_err(|code| format!("parse failed: {code:?}"))?;
         eprintln!("\n--- Parsed-container fast revalidation (ZIP parsed once) ---");
         let single = bench_parsed_single(&parsed, payload_bytes, config.warmup, config.seconds)?;
         print_stats("1 thread", &single);
-        if config.threads > 1 {
+        if threads > 1 {
             let parallel = bench_parsed_parallel(
                 &parsed,
                 payload_bytes,
-                config.threads,
+                threads,
                 config.warmup,
                 config.seconds,
             )?;
-            print_stats(&format!("{} threads", config.threads), &parallel);
+            print_stats(&format!("{threads} threads"), &parallel);
         }
         return Ok(());
     }
 
     eprintln!("\n--- Single-thread ---");
     let single = bench_bytes_single(
-        &config.profile,
+        &profile,
         &bytes,
         payload_bytes,
         config.warmup,
@@ -131,24 +211,32 @@ fn run() -> Result<(), String> {
     )?;
     print_stats("1 thread", &single);
 
-    if config.threads > 1 {
+    if threads > 1 {
         eprintln!("\n--- Parallel aggregate throughput ---");
         let parallel = bench_bytes_parallel(
-            &config.profile,
+            &profile,
             &bytes,
             payload_bytes,
-            config.threads,
+            threads,
             config.warmup,
             config.seconds,
         )?;
-        print_stats(&format!("{} threads", config.threads), &parallel);
+        print_stats(&format!("{threads} threads"), &parallel);
         eprintln!(
             "Per-thread efficiency: {:.1}%",
-            (parallel.evals_per_sec / config.threads as f64 / single.evals_per_sec) * 100.0
+            (parallel.evals_per_sec / threads as f64 / single.evals_per_sec) * 100.0
         );
     }
 
     Ok(())
+}
+
+fn intent_for_profile(profile: BenchProfile) -> VerifyIntent {
+    match profile {
+        BenchProfile::Full => VerifyIntent::ForensicReport,
+        BenchProfile::Fast => VerifyIntent::GatewayIngest,
+        BenchProfile::Parsed => VerifyIntent::CachedRevalidation,
+    }
 }
 
 fn sanity_check(profile: &BenchProfile, bytes: &[u8]) -> Result<(), String> {
@@ -394,8 +482,20 @@ fn validate_config(config: &Config) -> Result<(), String> {
     if config.object_bytes == 0 {
         return Err("--bytes must be >= 1".to_string());
     }
-    if config.threads == 0 {
+    if config.threads == Some(0) {
         return Err("--threads must be >= 1".to_string());
+    }
+    if config.auto_plan && config.profile.is_some() {
+        return Err("--auto cannot be combined with --profile".to_string());
+    }
+    if config.auto_plan && config.threads.is_some() {
+        return Err("--auto cannot be combined with --threads".to_string());
+    }
+    if config.auto_threads && config.threads.is_some() {
+        return Err("--auto-threads cannot be combined with --threads".to_string());
+    }
+    if config.auto_threads && !config.auto_plan && config.profile.is_none() {
+        return Err("--auto-threads requires --profile".to_string());
     }
     if config.seconds <= 0.0 {
         return Err("--seconds must be > 0".to_string());
@@ -421,10 +521,14 @@ fn validate_config(config: &Config) -> Result<(), String> {
 }
 
 fn parse_args() -> Result<Config, String> {
-    let mut profile = BenchProfile::Full;
+    let mut profile: Option<BenchProfile> = None;
     let mut object_count = None;
     let mut object_bytes = None;
-    let mut threads = 1usize;
+    let mut threads: Option<usize> = None;
+    let mut auto_threads = false;
+    let mut auto_plan = false;
+    let mut thread_probe = true;
+    let mut memory_gib: Option<u64> = None;
     let mut seconds = 10.0f64;
     let mut warmup = 20usize;
     let mut write_path = None;
@@ -433,7 +537,10 @@ fn parse_args() -> Result<Config, String> {
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--profile" => {
-                profile = BenchProfile::from_str(&parse_string(args.next(), "--profile")?)?;
+                profile = Some(BenchProfile::from_str(&parse_string(
+                    args.next(),
+                    "--profile",
+                )?)?);
             }
             "--objects" => {
                 object_count = Some(parse_usize(args.next(), "--objects")?);
@@ -442,7 +549,16 @@ fn parse_args() -> Result<Config, String> {
                 object_bytes = Some(parse_usize(args.next(), "--bytes")?);
             }
             "--threads" => {
-                threads = parse_usize(args.next(), "--threads")?;
+                threads = Some(parse_usize(args.next(), "--threads")?);
+            }
+            "--auto-threads" => auto_threads = true,
+            "--auto" => {
+                auto_plan = true;
+                auto_threads = true;
+            }
+            "--no-probe" => thread_probe = false,
+            "--memory-gib" => {
+                memory_gib = Some(parse_u64(args.next(), "--memory-gib")?);
             }
             "--seconds" => {
                 seconds = parse_f64(args.next(), "--seconds")?;
@@ -466,10 +582,21 @@ fn parse_args() -> Result<Config, String> {
         object_count: object_count.ok_or("missing required --objects")?,
         object_bytes: object_bytes.ok_or("missing required --bytes")?,
         threads,
+        auto_threads,
+        auto_plan,
+        thread_probe,
+        memory_gib,
         seconds,
         warmup,
         write_path,
     })
+}
+
+fn parse_u64(value: Option<String>, flag: &str) -> Result<u64, String> {
+    value
+        .ok_or_else(|| format!("{flag} requires a value"))?
+        .parse()
+        .map_err(|_| format!("{flag} must be a positive integer"))
 }
 
 fn parse_usize(value: Option<String>, flag: &str) -> Result<usize, String> {
@@ -492,7 +619,7 @@ fn parse_string(value: Option<String>, flag: &str) -> Result<String, String> {
 
 fn print_help() {
     eprintln!(
-        r#"scale_bench — verify throughput by explicit profile
+        r#"scale_bench - verify throughput by explicit or adaptive profile
 
 Profiles (benchmark separately; do not mix labels):
   full    ZIP + full forensic VerificationReport (portable ingest baseline)
@@ -507,8 +634,12 @@ Required:
   --bytes N       Uncompressed bytes per payload object
 
 Optional:
-  --profile NAME  full | fast | parsed (default: full)
-  --threads N     Parallel workers (default: 1)
+  --profile NAME  full | fast | parsed (default when not using --auto)
+  --threads N     Parallel workers (default: 1 when not using --auto-threads)
+  --auto-threads  Pick thread count from hardware + package stats (+ probe)
+  --auto          Pick profile and threads adaptively (+ probe)
+  --no-probe      Skip 120 ms parallel probe when using --auto*
+  --memory-gib N  Override detected RAM budget for scheduling
   --seconds N     Duration per mode (default: 10)
   --warmup N      Warmup iterations (default: 20)
   --write PATH    Save generated .osdf fixture
@@ -516,8 +647,8 @@ Optional:
 
 Examples:
   ... --profile full  --objects 500 --bytes 65536 --threads 1 --seconds 10
-  ... --profile fast  --objects 10  --bytes 1024  --threads 1 --seconds 10
-  ... --profile parsed --objects 500 --bytes 65536 --threads 8 --seconds 10
+  ... --profile fast  --auto-threads --objects 10 --bytes 1024 --seconds 10
+  ... --auto --objects 500 --bytes 65536 --seconds 10
 "#
     );
 }
