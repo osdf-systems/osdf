@@ -5,6 +5,8 @@
 | [getting-started.md](getting-started.md) | New users | **Windows, macOS, and Linux** setup and scripts |
 | [licensing.md](licensing.md) | Everyone | PolyForm NC today; planned Apache/MIT relicense |
 | [github-setup.md](github-setup.md) | Maintainers | Branch protection, GitHub About, releases, security settings |
+| [architecture.md](architecture.md) | Architects | Zero Trust flow, verification layers (Mermaid) |
+| [benchmarks.md](benchmarks.md) | Evaluators | Criterion, Hyperfine, scale_bench, comparison scope |
 | [roadmap.md](roadmap.md) | Everyone | Public feature priorities and verification profiles |
 | [interoperability.md](interoperability.md) | Architects | SCITT, C2PA, VC mapping; crypto agility |
 | [specs/](../specs/) | Implementers and auditors | Phase specs, schema drafts, demo package plan |

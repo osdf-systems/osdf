@@ -180,6 +180,28 @@ osdf demo safety --write-readme-assets docs/assets
 
 ---
 
+## Architecture
+
+Zero Trust document flow (ingress, verify layers, verdict, render, egress):
+
+**[docs/architecture.md](docs/architecture.md)** · Mermaid diagrams for the verification pipeline and profile placement.
+
+---
+
+## Benchmarks
+
+Reproducible performance measurements (Criterion + Hyperfine + `scale_bench`). Compare OSDF profiles and optional GPG wall-clock checks with honest scope notes for OpenTDF.
+
+| Tool | Command |
+| --- | --- |
+| Criterion | `cargo bench -p osdf-core --bench verify_throughput` |
+| Throughput | `cargo run --release -p osdf-core --example scale_bench -- --auto --objects 10 --bytes 1024` |
+| Hyperfine | `./scripts/run-benchmarks.sh` or `.\scripts\run-benchmarks.ps1` |
+
+Full methodology, Mermaid charts, and comparison scope: **[docs/benchmarks.md](docs/benchmarks.md)**
+
+---
+
 ## Roadmap
 
 | Phase | Status | Deliverable |

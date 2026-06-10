@@ -15,6 +15,7 @@ pub mod verify;
 pub mod verify_audit;
 pub mod verify_fast;
 pub mod verify_profile;
+pub mod verify_schedule;
 
 #[cfg(feature = "native-create")]
 pub mod build;
@@ -55,6 +56,10 @@ pub use verify_fast::{
     verify_package_bytes_fast, verify_parsed_package_fast,
 };
 pub use verify_profile::{FastFailCode, FastVerifyResult, ParsedPackage, VerificationProfile};
+pub use verify_schedule::{
+    peek_package_stats, stats_from_parsed, HardwareSnapshot, PackageCostTier, PackageStats,
+    VerifyIntent, VerifyPlan,
+};
 
 #[cfg(feature = "native-create")]
 pub use build::{

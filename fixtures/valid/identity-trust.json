@@ -5,7 +5,7 @@
       "organizationId": "urn:osdf:org:colorado-state-demo",
       "displayName": "State of Colorado",
       "rootKeys": [
-        "urn:osdf:key:ed25519:ba03fbceb6dd6fe2182501145f61eb6cc1f6734eee303334938d6e6dd8f7a546"
+        "urn:osdf:key:ed25519:0288b7767a260335f727263ffbd31a776a60cd09238b5aa952894a9b42eb33a1"
       ]
     }
   ],
@@ -14,11 +14,11 @@
       "credentialType": "OSDF_ORGANIZATION_SIGNING_DELEGATION",
       "organizationId": "urn:osdf:org:colorado-state-demo",
       "department": "Department of Revenue",
-      "subjectKey": "urn:osdf:key:ed25519:b24d2dcfd61bc699fa68dcab2c8f538e35996b68be8f14010dadb2730b5a16ed",
+      "subjectKey": "urn:osdf:key:ed25519:340dd7d199dce1bfa537c04c7dc0459aa07e03fe6e65c8278c04d3d496b5f183",
       "validFrom": "2020-01-01T00:00:00Z",
       "validUntil": "2030-01-01T00:00:00Z",
-      "issuerKey": "urn:osdf:key:ed25519:ba03fbceb6dd6fe2182501145f61eb6cc1f6734eee303334938d6e6dd8f7a546",
-      "signature": "MUO0dldgyqnk0xImYYLELlYxKx3rPu6tKzt5AXmMLLQvTP8jrIozNkZ3XUVuSLGLo5urQ7I0KHIOnm-MbKSvCw"
+      "issuerKey": "urn:osdf:key:ed25519:0288b7767a260335f727263ffbd31a776a60cd09238b5aa952894a9b42eb33a1",
+      "signature": "53-NhwUPC0_tcQHucMrT5DWHDejEgDP0AjLM0lMNkeNtoKCWo5yzXunfsT8AOYuX4cKa0X6-w6-X92-eRx60Ag"
     }
   ]
 }
