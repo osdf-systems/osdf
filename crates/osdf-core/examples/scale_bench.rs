@@ -16,10 +16,9 @@ use std::time::{Duration, Instant};
 use osdf_core::constants::{MAX_ENTRIES, MAX_UNCOMPRESSED_BYTES};
 use osdf_core::{
     commit_revision, create_package, generate_signing_key, parse_package, peek_package_stats,
-    verify_package_bytes, verify_package_bytes_fast, verify_parsed_package_fast,
-    write_package, CommitOptions, CreateOptions, FastVerifyResult, HardwareSnapshot,
-    PackageContainer, VerificationProfile, VerificationStatus, VerifyIntent, VerifyPlan,
-    VerifierConfig,
+    verify_package_bytes, verify_package_bytes_fast, verify_parsed_package_fast, write_package,
+    CommitOptions, CreateOptions, FastVerifyResult, HardwareSnapshot, PackageContainer,
+    VerificationProfile, VerificationStatus, VerifierConfig, VerifyIntent, VerifyPlan,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -153,12 +152,14 @@ fn run() -> Result<(), String> {
         eprintln!("\n--- Adaptive plan ---");
         eprintln!("  profile:  {}", plan.profile.label());
         eprintln!("  threads:  {}", plan.threads);
-        eprintln!("  hardware: logical={} physical={} mem={:.1} GiB budget",
+        eprintln!(
+            "  hardware: logical={} physical={} mem={:.1} GiB budget",
             hardware.logical_cores,
             hardware.physical_cores,
             hardware.usable_memory_bytes as f64 / (1024.0 * 1024.0 * 1024.0),
         );
-        eprintln!("  package:  tier={:?} archive={} bytes objects={} payload={}",
+        eprintln!(
+            "  package:  tier={:?} archive={} bytes objects={} payload={}",
             package_stats.cost_tier,
             package_stats.archive_bytes,
             package_stats.object_count,
@@ -170,7 +171,9 @@ fn run() -> Result<(), String> {
     let profile = config
         .profile
         .ok_or("missing --profile (or use --auto for adaptive profile + threads)")?;
-    let threads = config.threads.ok_or("missing --threads (or use --auto-threads / --auto)")?;
+    let threads = config
+        .threads
+        .ok_or("missing --threads (or use --auto-threads / --auto)")?;
 
     eprintln!(
         "\nProfile: {} (ZIP parse each eval: {})",
@@ -534,7 +537,10 @@ fn parse_args() -> Result<Config, String> {
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--profile" => {
-                profile = Some(BenchProfile::from_str(&parse_string(args.next(), "--profile")?)?);
+                profile = Some(BenchProfile::from_str(&parse_string(
+                    args.next(),
+                    "--profile",
+                )?)?);
             }
             "--objects" => {
                 object_count = Some(parse_usize(args.next(), "--objects")?);

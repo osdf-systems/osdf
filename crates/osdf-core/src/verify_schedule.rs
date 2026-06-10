@@ -64,7 +64,11 @@ pub enum PackageCostTier {
 }
 
 impl PackageCostTier {
-    pub fn from_stats(archive_bytes: u64, object_count: usize, declared_payload_bytes: u64) -> Self {
+    pub fn from_stats(
+        archive_bytes: u64,
+        object_count: usize,
+        declared_payload_bytes: u64,
+    ) -> Self {
         if archive_bytes <= 256 * 1024 && object_count <= 32 && declared_payload_bytes <= 256 * 1024
         {
             Self::Small
@@ -138,7 +142,13 @@ impl VerifyPlan {
             return self;
         }
 
-        let best = probe_best_threads(self.profile, bytes, config, &candidates, Duration::from_millis(120));
+        let best = probe_best_threads(
+            self.profile,
+            bytes,
+            config,
+            &candidates,
+            Duration::from_millis(120),
+        );
         if best > 1 {
             self.reason = format!("{}; probe selected {best} threads", self.reason);
             self.threads = best;
@@ -147,12 +157,16 @@ impl VerifyPlan {
     }
 }
 
-pub fn peek_package_stats(bytes: &[u8]) -> Result<PackageStats, crate::verify_profile::FastFailCode> {
+pub fn peek_package_stats(
+    bytes: &[u8],
+) -> Result<PackageStats, crate::verify_profile::FastFailCode> {
     let parsed = parse_package(bytes)?;
     stats_from_parsed(&parsed)
 }
 
-pub fn stats_from_parsed(parsed: &ParsedPackage) -> Result<PackageStats, crate::verify_profile::FastFailCode> {
+pub fn stats_from_parsed(
+    parsed: &ParsedPackage,
+) -> Result<PackageStats, crate::verify_profile::FastFailCode> {
     let manifest = parse_manifest(&parsed.container)
         .map_err(|_| crate::verify_profile::FastFailCode::ManifestParseFailure)?;
     let declared_payload_bytes: u64 = manifest.objects.iter().map(|o| o.bytes).sum();
@@ -223,12 +237,7 @@ fn thread_candidates(
     stats: &PackageStats,
     profile: VerificationProfile,
 ) -> Vec<usize> {
-    let max_threads = threads_for_profile(
-        hardware,
-        stats,
-        profile,
-        VerifyIntent::MaxThroughput,
-    );
+    let max_threads = threads_for_profile(hardware, stats, profile, VerifyIntent::MaxThroughput);
     let mut out = Vec::new();
     let mut n = 1usize;
     while n <= max_threads {
@@ -240,7 +249,9 @@ fn thread_candidates(
     }
     out.sort_unstable();
     out.dedup();
-    if profile == VerificationProfile::CoreJsonPortableFull && stats.cost_tier == PackageCostTier::Large {
+    if profile == VerificationProfile::CoreJsonPortableFull
+        && stats.cost_tier == PackageCostTier::Large
+    {
         out.retain(|&t| t <= 2);
     }
     out
@@ -280,7 +291,9 @@ fn measure_parallel_rate(
     let shared_bytes = Arc::new(bytes.to_vec());
     let shared_config = Arc::new(config.clone());
     let parsed = if profile == VerificationProfile::CoreJsonParsedFast {
-        Some(Arc::new(parse_package(bytes).expect("probe package must parse")))
+        Some(Arc::new(
+            parse_package(bytes).expect("probe package must parse"),
+        ))
     } else {
         None
     };

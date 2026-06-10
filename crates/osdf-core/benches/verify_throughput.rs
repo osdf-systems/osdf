@@ -9,12 +9,12 @@ use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criteri
 use osdf_core::{
     create_package, generate_signing_key, parse_package, verify_package_bytes,
     verify_package_bytes_fast, verify_parsed_package_fast, CreateOptions, FastVerifyResult,
-    VerifierConfig, VerificationStatus,
+    VerificationStatus, VerifierConfig,
 };
 
 fn fixture_bytes() -> Vec<u8> {
-    let fixture = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../fixtures/valid/valid-committed.osdf");
+    let fixture =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/valid/valid-committed.osdf");
     if fixture.is_file() {
         return std::fs::read(fixture).expect("read fixture");
     }
@@ -69,23 +69,27 @@ fn bench_parallel_parsed(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("parsed_parallel");
     for threads in [1usize, 2, 4, 8] {
-        group.bench_with_input(BenchmarkId::new("threads", threads), &threads, |b, &threads| {
-            b.iter(|| {
-                std::thread::scope(|scope| {
-                    for _ in 0..threads {
-                        let parsed = Arc::clone(&parsed);
-                        let config = Arc::clone(&config);
-                        scope.spawn(move || {
-                            for _ in 0..50 {
-                                let result =
-                                    verify_parsed_package_fast(&parsed, config.as_ref());
-                                assert_eq!(result, FastVerifyResult::Pass);
-                            }
-                        });
-                    }
+        group.bench_with_input(
+            BenchmarkId::new("threads", threads),
+            &threads,
+            |b, &threads| {
+                b.iter(|| {
+                    std::thread::scope(|scope| {
+                        for _ in 0..threads {
+                            let parsed = Arc::clone(&parsed);
+                            let config = Arc::clone(&config);
+                            scope.spawn(move || {
+                                for _ in 0..50 {
+                                    let result =
+                                        verify_parsed_package_fast(&parsed, config.as_ref());
+                                    assert_eq!(result, FastVerifyResult::Pass);
+                                }
+                            });
+                        }
+                    });
                 });
-            });
-        });
+            },
+        );
     }
     group.finish();
 }
