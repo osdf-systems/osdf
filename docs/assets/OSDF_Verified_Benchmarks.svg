@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520">
+  <defs>
+    <linearGradient id="violinFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.15"/>
+    </linearGradient>
+    <linearGradient id="violinFillHi" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3fb950" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#3fb950" stop-opacity="0.2"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="100%" height="100%" rx="8" fill="#0d1117"/>
+  <rect x="1" y="1" width="958" height="518" rx="8" fill="none" stroke="#38bdf8" stroke-width="2"/>
+
+  <rect x="12" y="12" width="548" height="496" rx="6" fill="#010409" stroke="#30363d" stroke-width="1"/>
+  <text x="24" y="36" fill="#8b949e" font-family="Consolas, 'Courier New', monospace" font-size="11">cargo bench -p osdf-core --bench verify_throughput</text>
+  <text x="24" y="54" fill="#8b949e" font-family="Consolas, 'Courier New', monospace" font-size="11">    Finished `bench` profile [optimized] target(s) in 11.41s</text>
+  <text x="24" y="72" fill="#8b949e" font-family="Consolas, 'Courier New', monospace" font-size="11">     Running benches\verify_throughput.rs (target\release\deps\verify_throughput-....exe)</text>
+  <text x="24" y="90" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="11">Gnuplot not found, using plotters backend</text>
+
+  <text x="24" y="118" fill="#38bdf8" font-family="Consolas, 'Courier New', monospace" font-size="12" font-weight="bold">verify_profile/full_report</text>
+  <text x="24" y="136" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="11">                        time:   [103.00 us 103.19 us 103.43 us]</text>
+  <text x="24" y="154" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="11">                        thrpt:  [34.502 MiB/s 34.582 MiB/s 34.648 MiB/s]</text>
+  <text x="24" y="172" fill="#f85149" font-family="Consolas, 'Courier New', monospace" font-size="11">                        Performance has regressed.</text>
+
+  <text x="24" y="200" fill="#38bdf8" font-family="Consolas, 'Courier New', monospace" font-size="12" font-weight="bold">verify_profile/portable_fast</text>
+  <text x="24" y="218" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="11">                        time:   [92.209 us 92.567 us 93.009 us]</text>
+  <text x="24" y="236" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="11">                        thrpt:  [38.369 MiB/s 38.552 MiB/s 38.702 MiB/s]</text>
+  <text x="24" y="254" fill="#3fb950" font-family="Consolas, 'Courier New', monospace" font-size="11">                        No change in performance detected.</text>
+
+  <text x="24" y="282" fill="#3fb950" font-family="Consolas, 'Courier New', monospace" font-size="12" font-weight="bold">verify_profile/parsed_fast</text>
+  <text x="24" y="300" fill="#3fb950" font-family="Consolas, 'Courier New', monospace" font-size="11">                        time:   [85.326 us 85.579 us 85.872 us]</text>
+  <text x="24" y="318" fill="#3fb950" font-family="Consolas, 'Courier New', monospace" font-size="11">                        thrpt:  [41.558 MiB/s 41.700 MiB/s 41.824 MiB/s]</text>
+  <text x="24" y="336" fill="#3fb950" font-family="Consolas, 'Courier New', monospace" font-size="11">                        No change in performance detected.</text>
+  <text x="24" y="354" fill="#8b949e" font-family="Consolas, 'Courier New', monospace" font-size="11">Found 8 outliers among 100 measurements (8.00%)</text>
+
+  <text x="24" y="382" fill="#8b949e" font-family="Consolas, 'Courier New', monospace" font-size="11">parsed_parallel/threads/1</text>
+  <text x="24" y="400" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="11">                        time:   [4.5040 ms 4.5265 ms 4.5509 ms]</text>
+  <text x="24" y="418" fill="#8b949e" font-family="Consolas, 'Courier New', monospace" font-size="11">                        No change in performance detected.</text>
+
+  <rect x="24" y="434" width="520" height="58" rx="4" fill="#161b22" stroke="#238636" stroke-width="1"/>
+  <text x="36" y="456" fill="#3fb950" font-family="Consolas, 'Courier New', monospace" font-size="12" font-weight="bold">Single-core parsed_fast: 85.579 us median</text>
+  <text x="36" y="476" fill="#e6edf3" font-family="Consolas, 'Courier New', monospace" font-size="11">Fixture: valid-committed.osdf | 100 samples | Criterion plotters backend</text>
+
+  <rect x="572" y="12" width="376" height="496" rx="6" fill="#010409" stroke="#30363d" stroke-width="1"/>
+  <text x="588" y="38" fill="#e6edf3" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600">verify_profile latency (single-core)</text>
+  <text x="588" y="56" fill="#8b949e" font-family="Inter, system-ui, sans-serif" font-size="10">Criterion violin | 100 measurements | lower is better</text>
+
+  <rect x="600" y="72" width="320" height="300" fill="#0d1117" stroke="#21262d" stroke-width="1" rx="4"/>
+
+  <line x1="640" y1="332" x2="900" y2="332" stroke="#30363d" stroke-width="1"/>
+  <line x1="640" y1="288" x2="900" y2="288" stroke="#21262d" stroke-width="1"/>
+  <line x1="640" y1="244" x2="900" y2="244" stroke="#21262d" stroke-width="1"/>
+  <line x1="640" y1="200" x2="900" y2="200" stroke="#21262d" stroke-width="1"/>
+  <line x1="640" y1="156" x2="900" y2="156" stroke="#21262d" stroke-width="1"/>
+  <line x1="640" y1="112" x2="900" y2="112" stroke="#21262d" stroke-width="1"/>
+  <line x1="640" y1="92" x2="900" y2="92" stroke="#21262d" stroke-width="1"/>
+
+  <text x="608" y="336" fill="#8b949e" font-family="Consolas, monospace" font-size="9" text-anchor="end">80</text>
+  <text x="608" y="292" fill="#8b949e" font-family="Consolas, monospace" font-size="9" text-anchor="end">86</text>
+  <text x="608" y="248" fill="#8b949e" font-family="Consolas, monospace" font-size="9" text-anchor="end">92</text>
+  <text x="608" y="204" fill="#8b949e" font-family="Consolas, monospace" font-size="9" text-anchor="end">98</text>
+  <text x="608" y="160" fill="#8b949e" font-family="Consolas, monospace" font-size="9" text-anchor="end">104</text>
+  <text x="608" y="116" fill="#8b949e" font-family="Consolas, monospace" font-size="9" text-anchor="end">110</text>
+  <text x="592" y="210" fill="#8b949e" font-family="Inter, sans-serif" font-size="9" transform="rotate(-90 592 210)">time (us)</text>
+
+  <path d="M 700 156 C 722 168, 722 188, 700 200 C 678 188, 678 168, 700 156 Z" fill="url(#violinFill)" stroke="#38bdf8" stroke-width="1.2"/>
+  <line x1="700" y1="156" x2="700" y2="200" stroke="#38bdf8" stroke-width="1.5" opacity="0.9"/>
+  <circle cx="700" cy="178" r="3" fill="#38bdf8"/>
+
+  <path d="M 770 238 C 794 250, 794 276, 770 288 C 746 276, 746 250, 770 238 Z" fill="url(#violinFill)" stroke="#38bdf8" stroke-width="1.2"/>
+  <line x1="770" y1="238" x2="770" y2="288" stroke="#38bdf8" stroke-width="1.5" opacity="0.9"/>
+  <circle cx="770" cy="263" r="3" fill="#38bdf8"/>
+
+  <path d="M 840 268 C 868 274, 868 286, 840 292 C 812 286, 812 274, 840 268 Z" fill="url(#violinFillHi)" stroke="#3fb950" stroke-width="1.8"/>
+  <line x1="840" y1="268" x2="840" y2="292" stroke="#3fb950" stroke-width="2"/>
+  <circle cx="840" cy="280" r="3.5" fill="#3fb950"/>
+  <text x="840" y="258" fill="#3fb950" font-family="Consolas, monospace" font-size="10" text-anchor="middle" font-weight="bold">85.6 us</text>
+
+  <text x="700" y="352" fill="#8b949e" font-family="Consolas, monospace" font-size="9" text-anchor="middle">full_report</text>
+  <text x="770" y="352" fill="#8b949e" font-family="Consolas, monospace" font-size="9" text-anchor="middle">portable_fast</text>
+  <text x="840" y="352" fill="#3fb950" font-family="Consolas, monospace" font-size="9" text-anchor="middle" font-weight="bold">parsed_fast</text>
+
+  <rect x="588" y="388" width="344" height="102" rx="4" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="604" y="412" fill="#e6edf3" font-family="Inter, sans-serif" font-size="11" font-weight="600">Deterministic single-core efficiency</text>
+  <text x="604" y="432" fill="#8b949e" font-family="Inter, sans-serif" font-size="10">Tight violin width = stable hot-path verify on committed fixture.</text>
+  <text x="604" y="450" fill="#3fb950" font-family="Consolas, monospace" font-size="10">parsed_fast median 85.579 us | CI band +/-0.27 us (p50)</text>
+  <text x="604" y="468" fill="#8b949e" font-family="Consolas, monospace" font-size="10">41.7 MiB/s throughput | valid-committed.osdf</text>
+  <text x="604" y="484" fill="#8b949e" font-family="Inter, sans-serif" font-size="9">Parallel scaling deferred to Phase II (threads/1 baseline in terminal).</text>
+</svg>
