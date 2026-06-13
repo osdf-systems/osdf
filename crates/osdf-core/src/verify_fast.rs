@@ -148,7 +148,6 @@ fn verify_identity_fast(
     let signature = signatures
         .iter()
         .find(|entry| entry.revision == manifest.revision)
-        .or_else(|| signatures.last())
         .ok_or(FastFailCode::SignatureInvalid)?;
 
     match resolve_signer_identity(&signature.signer_key, &signing_timestamp, &config.identity) {
