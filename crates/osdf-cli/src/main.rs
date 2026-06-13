@@ -81,7 +81,6 @@ enum Commands {
         #[command(subcommand)]
         command: LedgerCommands,
     },
-    /// Narrated verification demo for README / stakeholder walkthrough
     Demo {
         #[command(subcommand)]
         command: DemoCommands,
