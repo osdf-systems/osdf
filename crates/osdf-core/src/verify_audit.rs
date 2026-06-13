@@ -5,7 +5,7 @@ use zip::ZipArchive;
 
 use crate::constants::{
     suspicious_compression_ratio, HEADER_PATH, HEADER_SIZE, MAGIC, MAX_ENTRIES,
-    MAX_UNCOMPRESSED_BYTES,
+    MAX_UNCOMPRESSED_BYTES, PREALLOC_CAP_BYTES,
 };
 use crate::container::{normalize_zip_path, parse_header_bytes, PackageContainer, PackageEntry};
 use crate::report::{finding_for_code, ReportBuilder, VerificationStatus};
@@ -126,8 +126,9 @@ pub fn audit_and_read_container(
             return None;
         }
 
-        total_uncompressed = total_uncompressed.saturating_add(file.size());
-        if total_uncompressed > MAX_UNCOMPRESSED_BYTES {
+        let claimed = file.size();
+        let remaining = MAX_UNCOMPRESSED_BYTES.saturating_sub(total_uncompressed);
+        if claimed > remaining {
             record_container_failure(
                 builder,
                 "OSDF_CONTAINER_OVERSIZED_OBJECT",
@@ -136,13 +137,27 @@ pub fn audit_and_read_container(
             return None;
         }
 
-        let mut bytes = Vec::with_capacity(file.size() as usize);
-        if let Err(err) = file.read_to_end(&mut bytes) {
+        let capacity = claimed.min(remaining).min(PREALLOC_CAP_BYTES) as usize;
+        let mut bytes = Vec::with_capacity(capacity);
+        if let Err(err) = file
+            .by_ref()
+            .take(remaining.saturating_add(1))
+            .read_to_end(&mut bytes)
+        {
             record_container_failure(builder, "OSDF_ZIP_ERROR", err.to_string());
             return None;
         }
 
-        if bytes.len() as u64 != file.size() {
+        let actual = bytes.len() as u64;
+        if actual > remaining {
+            record_container_failure(
+                builder,
+                "OSDF_CONTAINER_OVERSIZED_OBJECT",
+                format!("uncompressed size exceeds limit ({MAX_UNCOMPRESSED_BYTES} bytes)"),
+            );
+            return None;
+        }
+        if actual != claimed {
             record_container_failure(
                 builder,
                 "OSDF_CONTAINER_ERROR",
@@ -150,6 +165,7 @@ pub fn audit_and_read_container(
             );
             return None;
         }
+        total_uncompressed = total_uncompressed.saturating_add(actual);
 
         entries.insert(
             normalized.clone(),
@@ -649,11 +665,20 @@ fn audit_signer_identity(
 
     let current_signature = signatures
         .iter()
-        .find(|signature| signature.revision == manifest.revision)
-        .or_else(|| signatures.last());
+        .find(|signature| signature.revision == manifest.revision);
 
     let Some(signature) = current_signature else {
-        emit_identity_disabled_stub(builder, identity);
+        builder.check(
+            "OSDF_SIGNATURE_CRYPTO",
+            "Signature cryptographically valid",
+            VerificationStatus::Fail,
+            Some("no signature covers the current revision".to_string()),
+        );
+        crate::report::record_error(
+            builder,
+            "OSDF_SIGNATURE_MISSING",
+            "no signature covers the current revision",
+        );
         return;
     };
 
