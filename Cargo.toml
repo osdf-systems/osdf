@@ -23,6 +23,8 @@ targets = [
 ]
 ci = "github"
 pr-run-mode = "plan"
+# Workflow hand-edited to move off retired ubuntu-20.04 runners (dist 0.28.0 still emits them)
+allow-dirty = ["ci"]
 
 [workspace.dependencies]
 anyhow = "1.0"
