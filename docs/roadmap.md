@@ -103,6 +103,25 @@ Future: `OSDF-Core-Binary` (encoding optimization), `OSDF-ZT-Token` (authorizati
 
 ---
 
+## Path to 0.1.0 stable
+
+Planned release ladder from the current alpha to the first stable tag. Scope may shift; the changelog is authoritative for what ships.
+
+| Milestone | Scope | Exit criteria |
+| --- | --- | --- |
+| **v0.1.0-alpha.2** (current) | Verification profiles, side-channel hardening, provenance schemas, summary V2 | Tagged; CI green; fixtures regenerate cleanly |
+| **v0.1.0-alpha.3** | Transformation receipts (sanitizer implementation), offline verification bundle export/import | Both features verifiable end-to-end from CLI; specs updated to match implementation |
+| **v0.1.0-beta.1** | Self-hosted test ledger daemon (`ledger serve`), reproducible rendering hash v1 (`taxForm` profile) | Online-enhanced verify demonstrated against local daemon; API surface frozen |
+| **v0.1.0** | Stabilization only - no new features | Container/manifest format frozen for 0.1.x; public API documented; full test + adversarial fixture suite green on Windows/Linux/macOS; clean fuzz campaign on release candidate |
+
+**Stability commitments at 0.1.0:**
+
+- No breaking changes to the package format or verification report schema within 0.1.x
+- Verification error codes (`OSDF_*`) are append-only
+- License remains PolyForm Noncommercial for 0.1.x; Apache-2.0 OR MIT relicense is evaluated at v1.0 (see [licensing.md](licensing.md))
+
+---
+
 ## Out of scope for public alpha
 
 - Production hosted ledger or live revocation service
