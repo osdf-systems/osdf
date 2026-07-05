@@ -5,8 +5,9 @@ use osdf_core::{
     build_proof_for_store, commit_revision, create_ledger_store, create_package,
     generate_signing_key, sign_delegation_credential, trust_config_for_store, verify_container,
     verify_container_with_config, verify_package_bytes, verifying_key_to_urn, CommitOptions,
-    CreateOptions, IdentityConfig, IdentityPolicy, LedgerPolicy, PackageContainer,
-    TrustedOrganization, VerificationStatus, VerifierConfig,
+    CreateOptions, IdentityConfig, IdentityPolicy, InspectionFinding, InspectionResult,
+    InspectionVerdict, LedgerPolicy, ObjectTransform, PackageContainer, TransformActor,
+    TransformReceipt, TrustedOrganization, VerificationStatus, VerifierConfig,
 };
 
 #[test]
@@ -46,6 +47,111 @@ fn valid_committed_roundtrip() {
         report.errors
     );
     assert_eq!(report.revision, Some(1));
+}
+
+#[test]
+fn structured_verification_summary_lists_verified_objects() {
+    let container = create_package(CreateOptions {
+        title: "Structured Summary".to_string(),
+        commit: true,
+        ..Default::default()
+    })
+    .unwrap();
+
+    let bytes = container.to_bytes().unwrap();
+    let report = verify_package_bytes(&bytes);
+
+    assert_eq!(report.overall, VerificationStatus::Pass);
+    assert_eq!(report.structured.summary_version, "2");
+    assert!(report.structured.package_digest.is_some());
+    assert!(report
+        .structured
+        .verified_objects
+        .iter()
+        .any(|object| object.path == "content/document.json"));
+    assert!(report.structured.failed_objects.is_empty());
+    assert!(report
+        .structured
+        .policy_inputs
+        .iter()
+        .any(|input| input.key == "objectCount"));
+}
+
+#[test]
+fn transform_and_inspection_schemas_are_camel_case_json() {
+    let receipt = TransformReceipt {
+        receipt_type: osdf_core::TRANSFORM_RECEIPT_TYPE.to_string(),
+        receipt_version: "1".to_string(),
+        source_package_digest:
+            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".to_string(),
+        output_package_digest:
+            "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".to_string(),
+        generated_at: "2026-06-23T00:00:00Z".to_string(),
+        transformer: TransformActor {
+            actor_id: "urn:osdf:gateway:test".to_string(),
+            display_name: "OSDF Gateway Sanitizer".to_string(),
+            signer_key_reference: Some("urn:osdf:key:test".to_string()),
+            software_version: Some("0.2.0-dev".to_string()),
+        },
+        policy_id: "gateway-sanitize-v1".to_string(),
+        transforms: vec![ObjectTransform {
+            source_object: "payload/invoice.pdf".to_string(),
+            output_object: Some("payload/invoice.clean.pdf".to_string()),
+            action: "pdf.javascript.removed".to_string(),
+            source_hash: "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+                .to_string(),
+            output_hash: Some(
+                "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                    .to_string(),
+            ),
+            scanner_refs: vec!["pdf-sanitizer@0.1.0".to_string()],
+            findings: vec!["embedded JavaScript action removed".to_string()],
+        }],
+    };
+
+    let inspection = InspectionResult {
+        result_type: osdf_core::INSPECTION_RESULT_TYPE.to_string(),
+        object_id: "osdf://payload/invoice.pdf".to_string(),
+        object_path: "payload/invoice.pdf".to_string(),
+        scanner_id: "pdf-sanitizer".to_string(),
+        scanner_version: "0.1.0".to_string(),
+        verdict: InspectionVerdict::Warn,
+        inspected_at: "2026-06-23T00:00:00Z".to_string(),
+        findings: vec![InspectionFinding {
+            code: "PDF_EMBEDDED_JS".to_string(),
+            severity: InspectionVerdict::Warn,
+            summary: "PDF contains embedded JavaScript".to_string(),
+            detail: Some("removed during sanitization".to_string()),
+        }],
+        recommended_actions: vec![
+            "allow sanitized preview".to_string(),
+            "deny original export".to_string(),
+        ],
+    };
+
+    let receipt_json = serde_json::to_value(&receipt).unwrap();
+    assert_eq!(
+        receipt_json["receiptType"],
+        osdf_core::TRANSFORM_RECEIPT_TYPE
+    );
+    assert_eq!(
+        receipt_json["sourcePackageDigest"],
+        receipt.source_package_digest
+    );
+    assert_eq!(
+        receipt_json["transforms"][0]["outputObject"],
+        "payload/invoice.clean.pdf"
+    );
+
+    let inspection_json = serde_json::to_value(&inspection).unwrap();
+    assert_eq!(
+        inspection_json["resultType"],
+        osdf_core::INSPECTION_RESULT_TYPE
+    );
+    assert_eq!(
+        inspection_json["recommendedActions"][0],
+        "allow sanitized preview"
+    );
 }
 
 #[test]

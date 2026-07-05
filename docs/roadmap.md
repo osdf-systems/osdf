@@ -19,6 +19,8 @@ Verification profiles (portable full, portable fast, parsed revalidation) are do
 | Organizational identity (configured)   | Local trust registry + delegation credentials                         |
 | Latest-revision registry (file-backed) | Outdated-revision warnings                                            |
 | Side-channel hardening (audit path)    | Constant-time digests; full-scan manifest audit                       |
+| Structured verification summary V2     | Machine-readable package/object summaries for gateways                |
+| Transform / inspection schema types    | Core structs for sanitizer and derived-capsule receipts               |
 
 
 See [SECURITY.md](../SECURITY.md) for the timing threat model.
@@ -27,13 +29,13 @@ See [SECURITY.md](../SECURITY.md) for the timing threat model.
 
 ## Build next
 
-These three features extend provenance, presentation integrity, and offline trust without replacing the portable package baseline.
+These features extend provenance, presentation integrity, and offline/online trust without replacing the portable package baseline.
 
 ### 1. Verified transformation receipts
 
 **Goal:** Prove how one document or evidence copy was **derived** from another (redact, extract, merge, export, render, submit), not merely that it is a new revision.
 
-**Status:** Schema draft - [specs/transformation-receipt.md](../specs/transformation-receipt.md)
+**Status:** Core receipt structs added; sanitizer implementation planned - [specs/transformation-receipt.md](../specs/transformation-receipt.md)
 
 **Relationship to today:** Revision commit proves *what changed* in the chain; transformation receipts prove *why and how* a derived artifact exists relative to a named source commitment.
 
@@ -52,6 +54,12 @@ These three features extend provenance, presentation integrity, and offline trus
 **Status:** Schema draft - [specs/offline-verification-bundle.md](../specs/offline-verification-bundle.md)
 
 **Relationship to today:** Embedded proofs and trust JSON exist inside packages; the bundle **packages the package + pinned trust snapshot + full report + verifier metadata** for export.
+
+### 4. Self-hosted master ledger for online verification
+
+**Goal:** Run a local ledger daemon that exercises online-enhanced verification, latest-revision lookups, and embedded proof attachment without relying on a production hosted service.
+
+**Status:** Design; core file-backed ledger primitives exist - see [specs/phase-d-m2-hosted.md](../specs/phase-d-m2-hosted.md) for the hosted-mode CLI sketch
 
 ---
 
@@ -92,6 +100,25 @@ Benchmark each profile separately (`scale_bench --profile …`):
 
 
 Future: `OSDF-Core-Binary` (encoding optimization), `OSDF-ZT-Token` (authorization capsule) - see verification profile ladder in code and `scale_bench`.
+
+---
+
+## Path to 0.1.0 stable
+
+Planned release ladder from the current alpha to the first stable tag. Scope may shift; the changelog is authoritative for what ships.
+
+| Milestone | Scope | Exit criteria |
+| --- | --- | --- |
+| **v0.1.0-alpha.2** (current) | Verification profiles, side-channel hardening, provenance schemas, summary V2 | Tagged; CI green; fixtures regenerate cleanly |
+| **v0.1.0-alpha.3** | Transformation receipts (sanitizer implementation), offline verification bundle export/import | Both features verifiable end-to-end from CLI; specs updated to match implementation |
+| **v0.1.0-beta.1** | Self-hosted test ledger daemon (`ledger serve`), reproducible rendering hash v1 (`taxForm` profile) | Online-enhanced verify demonstrated against local daemon; API surface frozen |
+| **v0.1.0** | Stabilization only - no new features | Container/manifest format frozen for 0.1.x; public API documented; full test + adversarial fixture suite green on Windows/Linux/macOS; clean fuzz campaign on release candidate |
+
+**Stability commitments at 0.1.0:**
+
+- No breaking changes to the package format or verification report schema within 0.1.x
+- Verification error codes (`OSDF_*`) are append-only
+- License remains PolyForm Noncommercial for 0.1.x; Apache-2.0 OR MIT relicense is evaluated at v1.0 (see [licensing.md](licensing.md))
 
 ---
 

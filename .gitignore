@@ -2,6 +2,12 @@
 /target/
 **/target/
 
+# Local fuzz campaign workspace and reports (kept out of the public repo)
+/crates/osdf-core/fuzz/
+/crates/osdf-core/fuzz-*.log
+/scripts/fuzz-linux.sh
+/docs/fuzzing/
+
 # wasm-pack generated output
 /web/pkg/
 /crates/osdf-wasm/pkg/
@@ -29,3 +35,11 @@ Thumbs.db
 /ledger.json
 /ledger-key.json
 /trust.json
+/init-ledger.json
+
+# Fixture signing key material (regenerate locally; never commit keys)
+/fixtures/valid/key.json
+
+# Internal design docs not yet published
+/docs/provenance-transform-ledger.md
+/crates/osdf-core/fuzz

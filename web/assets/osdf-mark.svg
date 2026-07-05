@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">OSDF mark</title>
+  <desc id="desc">A shield and signed evidence mark for OSDF Systems.</desc>
+  <defs>
+    <linearGradient id="bg" x1="72" y1="56" x2="448" y2="456" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f2230"/>
+      <stop offset="0.52" stop-color="#101720"/>
+      <stop offset="1" stop-color="#071018"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="132" y1="96" x2="380" y2="424" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f8d072"/>
+      <stop offset="1" stop-color="#c58a26"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="164" y1="164" x2="360" y2="356" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8fe6f0"/>
+      <stop offset="1" stop-color="#3aa6b7"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M256 72 391 126v112c0 91-52 154-135 202-83-48-135-111-135-202V126L256 72Z" fill="#0c141c" stroke="url(#gold)" stroke-width="20" stroke-linejoin="round"/>
+  <path d="M256 118 346 154v82c0 61-32 106-90 143-58-37-90-82-90-143v-82l90-36Z" fill="none" stroke="rgba(143,230,240,.45)" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M194 263h124" stroke="url(#cyan)" stroke-width="28" stroke-linecap="round"/>
+  <path d="M217 217h78" stroke="url(#gold)" stroke-width="28" stroke-linecap="round"/>
+  <circle cx="256" cy="263" r="24" fill="#f8d072"/>
+  <path d="M256 287v50" stroke="#f8d072" stroke-width="18" stroke-linecap="round"/>
+</svg>

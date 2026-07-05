@@ -323,7 +323,7 @@ fn build_stable_manifest(
         .collect::<Vec<_>>();
     objects.sort_by(|left, right| left.path.cmp(&right.path));
 
-    let revision_root_hash = format_digest(&merkle_root(&objects));
+    let revision_root_hash = format_digest(&merkle_root(&objects)?);
     let public_commitment = if revision == 0 {
         format_digest(&sha256_bytes(document_id.as_bytes()))
     } else {

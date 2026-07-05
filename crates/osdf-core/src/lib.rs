@@ -7,6 +7,7 @@ pub mod identity;
 pub mod ledger;
 pub mod manifest;
 pub mod merkle;
+pub mod provenance;
 pub mod report;
 pub mod revision;
 pub mod signature;
@@ -39,9 +40,14 @@ pub use ledger::{
     LatestRevisionPolicy, LedgerConfig, LedgerPolicy, LedgerSigningKeyFile, LedgerStore,
     TrustedLog,
 };
+pub use provenance::{
+    InspectionFinding, InspectionResult, InspectionVerdict, ObjectTransform, TransformActor,
+    TransformReceipt, INSPECTION_RESULT_TYPE, TRANSFORM_RECEIPT_TYPE,
+};
 pub use report::{
-    Severity, VerificationCheck, VerificationFinding, VerificationMessage, VerificationMode,
-    VerificationReport, VerificationSection, VerificationSectionReport, VerificationStatus,
+    FailedObjectSummary, PolicyInputSummary, Severity, VerificationCheck, VerificationFinding,
+    VerificationMessage, VerificationMode, VerificationReport, VerificationSection,
+    VerificationSectionReport, VerificationStatus, VerificationSummaryV2, VerifiedObjectSummary,
     CORE_VERSION,
 };
 pub use verify::{

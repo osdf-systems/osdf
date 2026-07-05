@@ -1,4 +1,5 @@
 use crate::container::PackageContainer;
+use crate::crypto::{format_digest, sha256_bytes};
 use crate::error::Result;
 use crate::identity::VerifierConfig;
 use crate::ledger::LedgerConfig;
@@ -37,6 +38,7 @@ pub fn verify_package_bytes_with_config(
 ) -> VerificationReport {
     let ledger = &config.ledger;
     let mut builder = ReportBuilder::new();
+    builder.package_digest(format_digest(&sha256_bytes(data)));
     let Some(container) = audit_and_read_container(data, &mut builder) else {
         audit_transparency(&mut builder, None, None, ledger);
         audit_verification_context(&mut builder, config);

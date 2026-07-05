@@ -1,5 +1,6 @@
 use crate::constants::HEADER_PATH;
 use crate::crypto::{merkle_leaf, merkle_node};
+use crate::error::Result;
 use crate::types::ManifestObject;
 
 pub fn merkle_scope_objects(objects: &[ManifestObject]) -> Vec<&ManifestObject> {
@@ -9,12 +10,12 @@ pub fn merkle_scope_objects(objects: &[ManifestObject]) -> Vec<&ManifestObject> 
         .collect()
 }
 
-pub fn merkle_root(objects: &[ManifestObject]) -> [u8; 32] {
+pub fn merkle_root(objects: &[ManifestObject]) -> Result<[u8; 32]> {
     let scoped = merkle_scope_objects(objects);
     let mut leaves = Vec::with_capacity(scoped.len());
 
     for object in scoped {
-        let digest = crate::crypto::parse_digest(&object.digest).expect("digest parsed in verify");
+        let digest = crate::crypto::parse_digest(&object.digest)?;
         leaves.push(merkle_leaf(
             &object.path,
             &object.object_type,
@@ -26,11 +27,11 @@ pub fn merkle_root(objects: &[ManifestObject]) -> [u8; 32] {
     leaves.sort();
 
     if leaves.is_empty() {
-        return [0u8; 32];
+        return Ok([0u8; 32]);
     }
 
     if leaves.len() == 1 {
-        return leaves[0];
+        return Ok(leaves[0]);
     }
 
     let mut level = leaves;
@@ -50,7 +51,7 @@ pub fn merkle_root(objects: &[ManifestObject]) -> [u8; 32] {
         level = next;
     }
 
-    level[0]
+    Ok(level[0])
 }
 
 #[cfg(test)]
@@ -66,6 +67,13 @@ mod tests {
             bytes: content.len() as u64,
             digest_algorithm: "SHA-256".to_string(),
             digest: format_digest(&sha256_bytes(content)),
+            object_id: None,
+            object_role: None,
+            media_type: None,
+            security_labels: Vec::new(),
+            origin_object: None,
+            derived_from: Vec::new(),
+            inspection_status: None,
         }
     }
 
@@ -73,8 +81,8 @@ mod tests {
     fn root_is_stable_for_sorted_inputs() {
         let a = object("a.txt", "binary", b"a");
         let b = object("b.txt", "binary", b"b");
-        let root1 = merkle_root(&[a.clone(), b.clone()]);
-        let root2 = merkle_root(&[b, a]);
+        let root1 = merkle_root(&[a.clone(), b.clone()]).unwrap();
+        let root2 = merkle_root(&[b, a]).unwrap();
         assert_eq!(root1, root2);
     }
 }
