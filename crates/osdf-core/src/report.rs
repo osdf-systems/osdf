@@ -23,6 +23,54 @@ pub struct VerificationReport {
     pub errors: Vec<VerificationMessage>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub signer_identities: Vec<ResolvedSignerIdentityReport>,
+    #[serde(default)]
+    pub structured: VerificationSummaryV2,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct VerificationSummaryV2 {
+    pub summary_version: String,
+    pub overall: VerificationStatus,
+    pub verification_mode: VerificationMode,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub package_digest: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub verified_objects: Vec<VerifiedObjectSummary>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub failed_objects: Vec<FailedObjectSummary>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub warnings: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub errors: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub policy_inputs: Vec<PolicyInputSummary>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub reason_codes: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct VerifiedObjectSummary {
+    pub path: String,
+    pub object_type: String,
+    pub bytes: u64,
+    pub digest: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct FailedObjectSummary {
+    pub path: String,
+    pub code: String,
+    pub detail: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct PolicyInputSummary {
+    pub key: String,
+    pub value: String,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -184,6 +232,10 @@ impl ReportBuilder {
         self.report.signature_count = value;
     }
 
+    pub fn package_digest(&mut self, value: impl Into<String>) {
+        self.report.structured.package_digest = Some(value.into());
+    }
+
     pub fn verification_mode(&mut self, mode: VerificationMode) {
         self.report.verification_mode = mode;
     }
@@ -201,6 +253,24 @@ impl ReportBuilder {
 
     pub fn signer_identity(&mut self, identity: ResolvedSignerIdentityReport) {
         self.report.signer_identities.push(identity);
+    }
+
+    pub fn verified_object(&mut self, object: VerifiedObjectSummary) {
+        self.report.structured.verified_objects.push(object);
+    }
+
+    pub fn failed_object(&mut self, object: FailedObjectSummary) {
+        self.report.structured.failed_objects.push(object);
+    }
+
+    pub fn policy_input(&mut self, key: impl Into<String>, value: impl Into<String>) {
+        self.report
+            .structured
+            .policy_inputs
+            .push(PolicyInputSummary {
+                key: key.into(),
+                value: value.into(),
+            });
     }
 
     pub fn begin_section(&mut self, section: VerificationSection) {
@@ -289,6 +359,7 @@ impl VerificationReport {
             warnings: Vec::new(),
             errors: Vec::new(),
             signer_identities: Vec::new(),
+            structured: VerificationSummaryV2::new(),
         }
     }
 
@@ -304,6 +375,7 @@ impl VerificationReport {
             || !self.errors.is_empty()
         {
             self.overall = VerificationStatus::Fail;
+            self.finalize_structured_summary();
             return;
         }
 
@@ -318,10 +390,57 @@ impl VerificationReport {
             || !self.warnings.is_empty()
         {
             self.overall = VerificationStatus::Warning;
+            self.finalize_structured_summary();
             return;
         }
 
         self.overall = VerificationStatus::Pass;
+        self.finalize_structured_summary();
+    }
+}
+
+impl VerificationReport {
+    fn finalize_structured_summary(&mut self) {
+        self.structured.overall = self.overall;
+        self.structured.verification_mode = self.verification_mode;
+        self.structured.reason_codes = self
+            .checks
+            .iter()
+            .filter(|check| check.status != VerificationStatus::Pass)
+            .map(|check| check.code.clone())
+            .chain(self.findings.iter().map(|finding| finding.code.clone()))
+            .collect::<std::collections::BTreeSet<_>>()
+            .into_iter()
+            .collect();
+        self.structured.warnings = self
+            .warnings
+            .iter()
+            .map(|warning| warning.code.clone())
+            .collect();
+        self.structured.errors = self.errors.iter().map(|error| error.code.clone()).collect();
+    }
+}
+
+impl VerificationSummaryV2 {
+    pub fn new() -> Self {
+        Self {
+            summary_version: "2".to_string(),
+            overall: VerificationStatus::Info,
+            verification_mode: VerificationMode::OfflineCryptographic,
+            package_digest: None,
+            verified_objects: Vec::new(),
+            failed_objects: Vec::new(),
+            warnings: Vec::new(),
+            errors: Vec::new(),
+            policy_inputs: Vec::new(),
+            reason_codes: Vec::new(),
+        }
+    }
+}
+
+impl Default for VerificationSummaryV2 {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -506,6 +625,11 @@ pub fn finding_for_code(code: &str, _technical: &str) -> (String, String, Severi
         "OSDF_VERIFICATION_MODE_OFFLINE" => (
             "Offline verification mode".to_string(),
             "Verification used only embedded package data and configured trust material. No live ledger, identity, or revocation services were queried.".to_string(),
+            Severity::Info,
+        ),
+        "OSDF_VERIFICATION_MODE_ONLINE_ENHANCED" => (
+            "Online-enhanced verification mode".to_string(),
+            "Verification used configured ledger trust material and latest-revision registry data in addition to embedded package proofs.".to_string(),
             Severity::Info,
         ),
         "OSDF_LIVE_REVOCATION_NOT_CHECKED" => (

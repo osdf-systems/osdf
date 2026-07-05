@@ -314,6 +314,10 @@ pub fn audit_manifest(
     );
     builder.document_id(manifest.document_id.clone());
     builder.revision(manifest.revision as u64);
+    builder.policy_input("documentId", manifest.document_id.clone());
+    builder.policy_input("revision", manifest.revision.to_string());
+    builder.policy_input("objectCount", manifest.objects.len().to_string());
+    builder.policy_input("contentBytes", manifest.content_bytes.to_string());
 
     let mut declared_present = true;
     let mut sizes_match = true;
@@ -330,8 +334,14 @@ pub fn audit_manifest(
             continue;
         }
 
+        let mut object_ok = true;
         let Some(actual) = container.get(&object.path) else {
             declared_present = false;
+            builder.failed_object(crate::report::FailedObjectSummary {
+                path: object.path.clone(),
+                code: "OSDF_MANIFEST_MISSING_OBJECT".to_string(),
+                detail: format!("declared object missing: {}", object.path),
+            });
             crate::report::record_error(
                 builder,
                 "OSDF_MANIFEST_MISSING_OBJECT",
@@ -342,6 +352,17 @@ pub fn audit_manifest(
 
         if actual.len() as u64 != object.bytes {
             sizes_match = false;
+            object_ok = false;
+            builder.failed_object(crate::report::FailedObjectSummary {
+                path: object.path.clone(),
+                code: "OSDF_MANIFEST_SIZE_MISMATCH".to_string(),
+                detail: format!(
+                    "byte length mismatch for `{}`: expected {}, got {}",
+                    object.path,
+                    object.bytes,
+                    actual.len()
+                ),
+            });
             crate::report::record_error(
                 builder,
                 "OSDF_MANIFEST_SIZE_MISMATCH",
@@ -358,6 +379,11 @@ pub fn audit_manifest(
             Ok(digest) => digest,
             Err(err) => {
                 hashes_match = false;
+                builder.failed_object(crate::report::FailedObjectSummary {
+                    path: object.path.clone(),
+                    code: "OSDF_MANIFEST_HASH_MISMATCH".to_string(),
+                    detail: err.to_string(),
+                });
                 crate::report::record_error(
                     builder,
                     "OSDF_MANIFEST_HASH_MISMATCH",
@@ -371,6 +397,11 @@ pub fn audit_manifest(
             Ok(digest) => digest,
             Err(err) => {
                 hashes_match = false;
+                builder.failed_object(crate::report::FailedObjectSummary {
+                    path: object.path.clone(),
+                    code: "OSDF_MANIFEST_HASH_MISMATCH".to_string(),
+                    detail: err.to_string(),
+                });
                 crate::report::record_error(
                     builder,
                     "OSDF_MANIFEST_HASH_MISMATCH",
@@ -381,11 +412,26 @@ pub fn audit_manifest(
         };
         if !digests_equal(&expected, &computed) {
             hashes_match = false;
+            object_ok = false;
+            builder.failed_object(crate::report::FailedObjectSummary {
+                path: object.path.clone(),
+                code: "OSDF_MANIFEST_HASH_MISMATCH".to_string(),
+                detail: format!("digest mismatch for `{}`", object.path),
+            });
             crate::report::record_error(
                 builder,
                 "OSDF_MANIFEST_HASH_MISMATCH",
                 format!("digest mismatch for `{}`", object.path),
             );
+        }
+
+        if object_ok {
+            builder.verified_object(crate::report::VerifiedObjectSummary {
+                path: object.path.clone(),
+                object_type: object.object_type.clone(),
+                bytes: object.bytes,
+                digest: object.digest.clone(),
+            });
         }
     }
 
@@ -432,6 +478,11 @@ pub fn audit_manifest(
     for path in container.paths() {
         if !allowed.contains(path.as_str()) {
             undeclared_free = false;
+            builder.failed_object(crate::report::FailedObjectSummary {
+                path: path.clone(),
+                code: "OSDF_MANIFEST_UNDECLARED_OBJECT".to_string(),
+                detail: format!("undeclared package object: {path}"),
+            });
             crate::report::record_error(
                 builder,
                 "OSDF_MANIFEST_UNDECLARED_OBJECT",
@@ -467,15 +518,22 @@ pub fn audit_manifest(
         }
     }
 
-    let computed_root = merkle_root(&manifest.objects);
-    if let Ok(declared_root) = parse_digest(&manifest.revision_root_hash) {
-        if !digests_equal(&computed_root, &declared_root) {
-            crate::report::record_error(
-                builder,
-                "OSDF_MANIFEST_HASH_MISMATCH",
-                "revision Merkle root mismatch",
-            );
+    if let Ok(computed_root) = merkle_root(&manifest.objects) {
+        if let Ok(declared_root) = parse_digest(&manifest.revision_root_hash) {
+            if !digests_equal(&computed_root, &declared_root) {
+                crate::report::record_error(
+                    builder,
+                    "OSDF_MANIFEST_HASH_MISMATCH",
+                    "revision Merkle root mismatch",
+                );
+            }
         }
+    } else {
+        crate::report::record_error(
+            builder,
+            "OSDF_MANIFEST_HASH_MISMATCH",
+            "invalid object digest in Merkle scope",
+        );
     }
 
     Some(manifest)
@@ -973,18 +1031,32 @@ pub fn audit_verification_context(
     builder: &mut ReportBuilder,
     config: &crate::identity::VerifierConfig,
 ) {
-    use crate::ledger::LedgerPolicy;
+    use crate::ledger::{LatestRevisionPolicy, LedgerPolicy};
     use crate::report::VerificationStatus;
 
     builder.begin_section(crate::report::VerificationSection::VerificationContext);
-    builder.verification_mode(crate::report::VerificationMode::OfflineCryptographic);
-
-    emit_info_stub(
-        builder,
-        "OSDF_VERIFICATION_MODE_OFFLINE",
-        "Offline cryptographic verification",
-        Some("embedded package data and configured trust material only".to_string()),
-    );
+    let online_enhanced = config.ledger.policy != LedgerPolicy::Disabled
+        || config.ledger.latest_revision_policy != LatestRevisionPolicy::Disabled;
+    if online_enhanced {
+        builder.verification_mode(crate::report::VerificationMode::OnlineEnhanced);
+        emit_info_stub(
+            builder,
+            "OSDF_VERIFICATION_MODE_ONLINE_ENHANCED",
+            "Online-enhanced ledger verification",
+            Some(
+                "configured ledger trust material and latest-revision registry were evaluated"
+                    .to_string(),
+            ),
+        );
+    } else {
+        builder.verification_mode(crate::report::VerificationMode::OfflineCryptographic);
+        emit_info_stub(
+            builder,
+            "OSDF_VERIFICATION_MODE_OFFLINE",
+            "Offline cryptographic verification",
+            Some("embedded package data and configured trust material only".to_string()),
+        );
+    }
 
     if config.ledger.policy != LedgerPolicy::Disabled
         && builder.has_passing_check("OSDF_LEDGER_INCLUSION_PROOF_VALID")

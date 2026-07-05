@@ -28,6 +28,7 @@ The stable open core is planned for **Apache-2.0 OR MIT** licensing (see [docs/l
 | **Parser safety** | Fail-closed ZIP walk; rejects traversal, undeclared objects, trailing bytes |
 | **Offline use** | Embedded proofs and optional registry snapshots; live checks reported explicitly |
 | **Transparency** | CT-style append-only ledger with inclusion proofs (Phase D) |
+| **Provenance** | Structured verification summaries plus transform/inspection receipt schemas |
 
 <p align="center">
   <img src="docs/assets/demo-verify-pass.svg" alt="OSDF verification report: PASS" width="680"/>
@@ -40,6 +41,12 @@ The stable open core is planned for **Apache-2.0 OR MIT** licensing (see [docs/l
   <br />
   <sub>Single-byte tamper detected in sub-millisecond verify paths (hardware-dependent)</sub>
 </p>
+
+---
+
+## v0.2 direction
+
+The next core milestone focuses on OSDF as a verifiable lifecycle substrate: object metadata, inspection results, transform receipts, derived capsules, and a self-hosted test ledger for online-enhanced verification. See [docs/roadmap.md](docs/roadmap.md) and [specs/transformation-receipt.md](specs/transformation-receipt.md).
 
 ---
 

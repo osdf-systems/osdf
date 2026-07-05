@@ -12,6 +12,7 @@ use osdf_core::{
     LatestRevisionPolicy, LedgerPolicy, LedgerStore, PackageContainer, VerificationStatus,
     VerifierConfig, CORE_VERSION,
 };
+use serde_json::json;
 
 #[derive(Parser)]
 #[command(name = "osdf", version, about = "Open Secure Document Format CLI")]
@@ -133,6 +134,52 @@ enum LedgerCommands {
         /// Write a matching trust config JSON for `osdf verify --ledger-config`
         #[arg(long)]
         trust_config: Option<PathBuf>,
+    },
+    /// Register a package, build its proof, and optionally attach/write trust config
+    Register {
+        #[arg(long)]
+        store: PathBuf,
+        #[arg(long)]
+        key: PathBuf,
+        #[arg(long, value_parser = existing_file_path)]
+        package: PathBuf,
+        /// Write package with embedded transparency proof
+        #[arg(long)]
+        output: Option<PathBuf>,
+        /// Write the transparency proof JSON without modifying the package
+        #[arg(long)]
+        proof: Option<PathBuf>,
+        /// Write a matching trust config JSON for online-enhanced verify tests
+        #[arg(long)]
+        trust_config: Option<PathBuf>,
+        /// Output format (`human` or `json`)
+        #[arg(long, value_name = "FORMAT", default_value = "human")]
+        format: OutputFormatArg,
+    },
+    /// Query the latest registered revision for a document
+    Latest {
+        #[arg(long)]
+        store: PathBuf,
+        /// Document ID to look up
+        #[arg(long)]
+        document_id: Option<String>,
+        /// Read document ID from an OSDF package
+        #[arg(long, value_parser = existing_file_path)]
+        package: Option<PathBuf>,
+        /// Output format (`human` or `json`)
+        #[arg(long, value_name = "FORMAT", default_value = "human")]
+        format: OutputFormatArg,
+    },
+    /// Emit a verifier trust config for this local ledger
+    TrustConfig {
+        #[arg(long)]
+        store: PathBuf,
+        #[arg(long)]
+        output: Option<PathBuf>,
+        #[arg(long, value_enum, default_value = "required")]
+        ledger_policy: LedgerPolicyArg,
+        #[arg(long, value_enum, default_value = "required")]
+        latest_revision_policy: LatestRevisionPolicyArg,
     },
 }
 
@@ -339,6 +386,127 @@ fn main() -> anyhow::Result<()> {
                     eprintln!("trust config: {}", trust_path.display());
                 }
             }
+            LedgerCommands::Register {
+                store,
+                key,
+                package,
+                output,
+                proof,
+                trust_config,
+                format,
+            } => {
+                let mut ledger_store = LedgerStore::load(&store)?;
+                let (key_log_id, log_signing_key) = load_signing_key(&key)?;
+                if key_log_id != ledger_store.log_id {
+                    anyhow::bail!("log signing key log id does not match ledger store");
+                }
+                let mut container = PackageContainer::read_from_path(&package)?;
+                let manifest = osdf_core::manifest::parse_manifest(&container)?;
+                if manifest.revision == 0 {
+                    anyhow::bail!("register requires a committed revision (revision > 0)");
+                }
+                let event_hash = revision_event_hash_bytes(&container, manifest.revision)?;
+                let leaf_index = if let Some(existing) = find_leaf_index(&ledger_store, &event_hash)
+                {
+                    existing
+                } else {
+                    let index = append_revision_to_store(
+                        &mut ledger_store,
+                        &manifest.document_id,
+                        manifest.revision,
+                        event_hash,
+                    );
+                    ledger_store.save(&store)?;
+                    index
+                };
+                let transparency_proof =
+                    build_proof_for_store(&ledger_store, leaf_index, event_hash, &log_signing_key)?;
+
+                if let Some(proof_path) = &proof {
+                    std::fs::write(proof_path, serde_json::to_vec_pretty(&transparency_proof)?)?;
+                }
+                if let Some(output_path) = &output {
+                    attach_transparency_proof(&mut container, transparency_proof.clone())?;
+                    write_package(&container, output_path)?;
+                }
+                if let Some(trust_path) = &trust_config {
+                    let mut config = trust_config_for_store(&ledger_store, LedgerPolicy::Required);
+                    config.latest_revision_policy = LatestRevisionPolicy::Required;
+                    std::fs::write(trust_path, serde_json::to_vec_pretty(&config)?)?;
+                }
+
+                let response = json!({
+                    "logId": ledger_store.log_id,
+                    "documentId": manifest.document_id,
+                    "revision": manifest.revision,
+                    "revisionEventHash": osdf_core::crypto::format_digest(&event_hash),
+                    "leafIndex": leaf_index,
+                    "treeSize": transparency_proof.tree_size,
+                    "proofPath": proof.as_ref().map(|p| p.display().to_string()),
+                    "outputPath": output.as_ref().map(|p| p.display().to_string()),
+                    "trustConfigPath": trust_config.as_ref().map(|p| p.display().to_string()),
+                });
+                if format.json_output(false) {
+                    println!("{}", serde_json::to_string_pretty(&response)?);
+                } else {
+                    println!("registered revision");
+                    println!("  log id: {}", response["logId"].as_str().unwrap_or("—"));
+                    println!(
+                        "  document: {}",
+                        response["documentId"].as_str().unwrap_or("—")
+                    );
+                    println!("  revision: {}", response["revision"]);
+                    println!("  leaf index: {}", response["leafIndex"]);
+                    println!("  tree size: {}", response["treeSize"]);
+                }
+            }
+            LedgerCommands::Latest {
+                store,
+                document_id,
+                package,
+                format,
+            } => {
+                let ledger_store = LedgerStore::load(&store)?;
+                let document_id = resolve_document_id(document_id, package.as_deref())?;
+                let latest = ledger_store
+                    .latest_revisions
+                    .iter()
+                    .find(|entry| entry.document_id == document_id)
+                    .cloned();
+                if format.json_output(false) {
+                    println!("{}", serde_json::to_string_pretty(&latest)?);
+                } else if let Some(latest) = latest {
+                    println!("latest revision");
+                    println!("  document: {}", latest.document_id);
+                    println!("  revision: {}", latest.revision);
+                    println!("  event hash: {}", latest.revision_event_hash);
+                    if let Some(leaf_index) = latest.leaf_index {
+                        println!("  leaf index: {leaf_index}");
+                    }
+                    if let Some(updated_at) = latest.updated_at {
+                        println!("  updated at: {updated_at}");
+                    }
+                } else {
+                    anyhow::bail!("no latest revision registered for `{document_id}`");
+                }
+            }
+            LedgerCommands::TrustConfig {
+                store,
+                output,
+                ledger_policy,
+                latest_revision_policy,
+            } => {
+                let ledger_store = LedgerStore::load(&store)?;
+                let mut config = trust_config_for_store(&ledger_store, ledger_policy.into());
+                config.latest_revision_policy = latest_revision_policy.into();
+                let json = serde_json::to_vec_pretty(&config)?;
+                if let Some(output) = output {
+                    std::fs::write(&output, json)?;
+                    eprintln!("trust config: {}", output.display());
+                } else {
+                    println!("{}", String::from_utf8(json)?);
+                }
+            }
         },
         Commands::Demo { command } => match command {
             DemoCommands::Safety {
@@ -399,6 +567,26 @@ fn existing_file_path(value: &str) -> Result<PathBuf, String> {
         Ok(path)
     } else {
         Err(format!("file not found: {value}"))
+    }
+}
+
+fn resolve_document_id(
+    document_id: Option<String>,
+    package: Option<&std::path::Path>,
+) -> anyhow::Result<String> {
+    match (document_id, package) {
+        (Some(document_id), None) => Ok(document_id),
+        (None, Some(path)) => {
+            let container = PackageContainer::read_from_path(path)?;
+            let manifest = osdf_core::manifest::parse_manifest(&container)?;
+            Ok(manifest.document_id)
+        }
+        (Some(_), Some(_)) => {
+            anyhow::bail!("use either --document-id or --package, not both")
+        }
+        (None, None) => {
+            anyhow::bail!("provide --document-id or --package")
+        }
     }
 }
 

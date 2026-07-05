@@ -42,10 +42,45 @@ pub struct ManifestObject {
     #[serde(default = "default_digest_algorithm")]
     pub digest_algorithm: String,
     pub digest: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub object_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub object_role: Option<ObjectRole>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub media_type: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub security_labels: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub origin_object: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub derived_from: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub inspection_status: Option<ObjectInspectionStatus>,
 }
 
 fn default_digest_algorithm() -> String {
     "SHA-256".to_string()
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "camelCase")]
+pub enum ObjectRole {
+    Payload,
+    Manifest,
+    Policy,
+    Receipt,
+    Derived,
+    Sanitized,
+    Metadata,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "lowercase")]
+pub enum ObjectInspectionStatus {
+    NotInspected,
+    Pass,
+    Warn,
+    Fail,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

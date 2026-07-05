@@ -40,7 +40,11 @@ Adaptive scheduling: `--auto` or `--auto-threads` (see [architecture.md](archite
 
 ### Hyperfine (CLI wall-clock)
 
-Requires [Hyperfine](https://github.com/sharkdp/hyperfine) and optional GnuPG for PGP comparison.
+Requires [Hyperfine](https://github.com/sharkdp/hyperfine). Optional comparators are auto-detected and added only when available:
+
+- **GnuPG** (`gpg`) → PGP detached-verify bar
+- a committed OpenTDF golden `.tdf` fixture → **OpenTDF structural manifest read (offline)** bar
+- `otdfctl` + `$OTDF_PLATFORM` → optional **OpenTDF decrypt** bar (true KAS round-trip)
 
 ```bash
 # macOS / Linux
@@ -50,7 +54,9 @@ Requires [Hyperfine](https://github.com/sharkdp/hyperfine) and optional GnuPG fo
 .\scripts\run-benchmarks.ps1
 ```
 
-Outputs:
+Each present comparator is added with a clear hyperfine `-n` label so a single export file describes exactly which tools ran. A machine with only `hyperfine` + the OSDF CLI still works — every other bar is skipped with a printed message (never a hard failure).
+
+Outputs (one file ingests all present bars: OSDF / GPG / OpenTDF-structural / optional OpenTDF-decrypt):
 
 - `docs/assets/benchmarks/hyperfine-summary.md` (committed after you run locally)
 - `docs/assets/benchmarks/hyperfine-results.json` (gitignored)
@@ -99,11 +105,16 @@ Oversubscribing threads (24 on memory-heavy packages) can **reduce** throughput.
 
 Comparisons to PGP and OpenTDF are **trust-model benchmarks**, not byte-for-byte equivalence.
 
-| Tool | Typical operation | What is measured | What is *not* measured |
+The hyperfine harness measures these bars (each added only when its tooling/fixtures are present):
+
+| Bar (hyperfine label) | Typical operation | What is measured | What is *not* measured |
 | --- | --- | --- | --- |
-| **OSDF** | `osdf verify package.osdf` | Full container + manifest + chain + optional ledger | PDF rendering, policy decrypt |
-| **PGP / GPG** | `gpg --verify` detached signature | Signature over a single payload file | Manifest object model, transparency log, revision chain |
-| **OpenTDF** | TDF decrypt / policy unwrap | Attribute + policy gate for encrypted payload | Declarative manifest audit of every object (different design center) |
+| **OSDF full verify** | `osdf verify package.osdf` | Full container + manifest + chain + optional ledger | PDF rendering, policy decrypt |
+| **GPG detached verify** | `gpg --batch --verify` detached signature | Signature over a single payload file | Manifest object model, transparency log, revision chain |
+| **OpenTDF structural manifest read (offline)** | read `0.manifest.json` from the TDF ZIP + JSON-parse it | Container open + manifest parse (the offline analogue of OSDF's structural read) | KAS round-trip, key unwrap, payload decrypt, policy gate |
+| **OpenTDF decrypt (otdfctl + platform)** *(optional)* | `otdfctl decrypt --host $OTDF_PLATFORM …` | Attribute + policy gate + key unwrap + decrypt for the payload | Declarative manifest audit of every object (different design center) |
+
+**Default** OpenTDF bar is the **structural manifest read** — it is *not* a decrypt. A true decrypt requires a running [OpenTDF platform](https://github.com/opentdf/platform) plus `otdfctl`, so it is opt-in (set `OTDF_PLATFORM`).
 
 ### OSDF vs PGP (GnuPG)
 
@@ -128,15 +139,33 @@ Install GnuPG to include the PGP bar in `./scripts/run-benchmarks.sh`.
 
 ### OSDF vs OpenTDF
 
-OpenTDF (Virtru TDF) optimizes **encrypt-then-policy** delivery. OSDF optimizes **declare-then-hash-then-sign** auditability. A fair benchmark pairs:
+OpenTDF (Virtru TDF) optimizes **encrypt-then-policy** delivery. OSDF optimizes **declare-then-hash-then-sign** auditability. They are **different design centers**, so any single number is an apples-to-oranges shape, not a verdict.
 
-| Scenario | OSDF | OpenTDF |
-| --- | --- | --- |
-| Integrity gate on ingest | `verify_package_bytes_fast` | Policy + unwrap latency (SDK) |
-| Archive-grade audit | Full verify + offline bundle (planned) | Attribute inspection + audit log (product-specific) |
-| Human view | Gateway render profile | Client decrypt view |
+What the hyperfine harness actually pairs:
 
-When OpenTDF tooling is installed, extend `scripts/run-benchmarks.sh` with your local TDF fixture.
+| Bar | OSDF | OpenTDF | Fairness note |
+| --- | --- | --- | --- |
+| **Structural read (default, offline)** | `osdf verify` opens the OSDF ZIP + parses its manifest | in-repo helper opens the golden `.tdf` ZIP + parses `0.manifest.json` | Closest like-for-like: both just open a container and parse its JSON manifest. OSDF's full verify **also** hashes every declared object, checks the revision chain, and (optionally) the transparency log — so it is doing strictly more than the OpenTDF structural read. |
+| **Decrypt (optional, online)** | n/a (OSDF does not encrypt payloads) | `otdfctl decrypt` against a live platform | Measures TDF's actual product path (KAS unwrap + decrypt + policy gate). There is no OSDF equivalent because OSDF is an integrity/audit format, not an encryption gate. Do not compare this bar to any OSDF bar as if equal. |
+
+The structural-read helper is a tiny example in this repo (`crates/osdf-core/examples/tdf_manifest_read.rs`) that uses only crates OSDF already depends on (`zip`, `serde_json`). It deliberately does **no** decryption, so it runs offline and never needs `unzip`/`jq`/`python` on the host (important on Windows). It is labeled **"OpenTDF structural manifest read (offline)"** in the export so it is never mistaken for a decrypt benchmark.
+
+To add the true decrypt bar, install [`otdfctl`](https://github.com/opentdf/otdfctl), provision an [OpenTDF platform](https://github.com/opentdf/platform), then:
+
+```bash
+export OTDF_PLATFORM="https://localhost:8080"
+# optional auth/extra flags forwarded verbatim to `otdfctl decrypt`:
+export OTDF_DECRYPT_ARGS="--tls-no-verify --with-client-creds-file creds.json"
+./scripts/run-benchmarks.sh
+```
+
+```powershell
+$env:OTDF_PLATFORM = "https://localhost:8080"
+$env:OTDF_DECRYPT_ARGS = "--tls-no-verify --with-client-creds-file creds.json"
+.\scripts\run-benchmarks.ps1
+```
+
+If `otdfctl` or `$OTDF_PLATFORM` is absent the decrypt bar is skipped with a printed message (mirroring the GPG skip); the run never hard-fails.
 
 ### Obtain OpenTDF sample files
 

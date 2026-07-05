@@ -16,63 +16,315 @@
       frame-ancestors 'none';
     "
   >
-  <title>OSDF Verifier</title>
+  <title>OSDF Systems | Compliance Evidence Infrastructure</title>
+  <link rel="icon" href="./assets/osdf-mark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <main class="container">
-    <header>
-      <p class="eyebrow">Open Secure Document Format</p>
-      <h1>Verify an OSDF document</h1>
-      <p class="privacy-note">
-        Verification runs locally in your browser. This file is not uploaded.
-      </p>
-      <p id="verifier-fingerprint" class="fingerprint"></p>
-    </header>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="OSDF Systems home">
+      <img class="brand-mark" src="./assets/osdf-mark.svg" alt="" width="48" height="48">
+      <span>
+        <strong>OSDF Systems</strong>
+        <small>Audit-ready evidence infrastructure</small>
+      </span>
+    </a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="#platform">Platform</a>
+      <a href="#products">Offerings</a>
+      <a href="#journey">Adoption</a>
+      <a href="#verifier">Verifier</a>
+      <a class="nav-docs" href="https://github.com/osdf-systems/osdf/tree/main/docs">Documentation</a>
+    </nav>
+  </header>
 
-    <section class="panel ledger-panel">
-      <h2>Trust configuration (optional)</h2>
-      <p class="privacy-note">
-        Paste JSON trust material for ledger and/or organizational identity verification.
-        Leave empty for standard local verification.
-      </p>
-      <label for="ledger-config">Ledger config (`LedgerConfig`)</label>
-      <textarea
-        id="ledger-config"
-        rows="5"
-        spellcheck="false"
-        placeholder='{"policy":"required","trustedLogs":[{"logId":"…","logPublicKeyUrn":"…"}]}'
-      ></textarea>
-      <label for="identity-config">Identity config (`IdentityConfig`)</label>
-      <textarea
-        id="identity-config"
-        rows="8"
-        spellcheck="false"
-        placeholder='{"policy":"required","organizations":[{"organizationId":"…","displayName":"State of Colorado","rootKeys":["…"]}],"delegations":[…]}'
-      ></textarea>
+  <main id="top">
+    <section class="hero shell" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Defense compliance evidence for teams under contract pressure</p>
+        <h1 id="hero-title">Audit-ready workflows with evidence you can verify offline.</h1>
+        <p class="hero-lede">
+          OSDF Systems helps defense contractors, GovCon teams, MSPs, and integrators
+          turn RFP requirements, CMMC controls, and audit requests into signed evidence
+          artifacts that remain trustworthy outside any single platform.
+        </p>
+        <div class="hero-actions" aria-label="Primary actions">
+          <a class="button primary" href="#products">Request assessment</a>
+          <a class="button secondary" href="https://github.com/osdf-systems/osdf/tree/main/docs">Documentation</a>
+          <a class="button secondary" href="#verifier">Run local verifier</a>
+        </div>
+        <ul class="buyer-list" aria-label="Built for">
+          <li>Small defense contractors</li>
+          <li>GovCon compliance teams</li>
+          <li>MSPs and managed security providers</li>
+          <li>Primes and systems integrators</li>
+        </ul>
+      </div>
+      <aside class="hero-console" aria-label="OSDF verification model">
+        <div class="console-topline">
+          <span>OSDF EVIDENCE</span>
+          <span>LOCAL VERIFY</span>
+        </div>
+        <img class="console-mark" src="./assets/osdf-mark.svg" alt="" width="92" height="92">
+        <div class="signal-grid" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <ol class="verify-flow">
+          <li><strong>Review obligation</strong><span>RFPs, contracts, CMMC, NIST 800-171, DFARS</span></li>
+          <li><strong>Build readiness file</strong><span>SSP review, POA&amp;M, remediation sequence</span></li>
+          <li><strong>Sign evidence</strong><span>Receipts, capsules, versioned artifacts</span></li>
+          <li><strong>Verify anywhere</strong><span>Browser verifier, SDK, air-gapped environments</span></li>
+        </ol>
+      </aside>
     </section>
 
-    <section
-      id="drop-zone"
-      class="drop-zone"
-      tabindex="0"
-      role="button"
-      aria-label="Choose or drop an OSDF file"
-    >
-      <strong>Drop an .osdf file here</strong>
-      <span>or</span>
-      <button id="choose-file" type="button">Choose file</button>
-      <input id="file-input" type="file" accept=".osdf" hidden>
+    <section id="focus" class="focus-band" aria-labelledby="focus-title">
+      <div class="shell">
+        <div class="section-kicker">Operational outcomes</div>
+        <h2 id="focus-title">Move from compliance scramble to controlled evidence operations.</h2>
+        <div class="focus-grid">
+          <article>
+            <span class="tag immediate">Readiness</span>
+            <h3>Know what the contract requires</h3>
+            <p>Map RFP language, DFARS clauses, and CMMC expectations into specific control gaps and next actions.</p>
+            <strong>Assessment reports and readiness engagements</strong>
+          </article>
+          <article>
+            <span class="tag recurring">Integrity</span>
+            <h3>Protect the chain of evidence</h3>
+            <p>Convert policies, screenshots, scans, attestations, and audit packages into signed, versioned records.</p>
+            <strong>Evidence vault and signed artifact workflows</strong>
+          </article>
+          <article>
+            <span class="tag verify">Verification</span>
+            <h3>Prove trust without a live service</h3>
+            <p>Enable auditors, primes, and program offices to verify packages locally, including disconnected environments.</p>
+            <strong>Web verifier, SDK, and air-gapped deployments</strong>
+          </article>
+        </div>
+      </div>
     </section>
 
-    <section id="file-summary" class="panel" hidden></section>
-    <section id="verification-result" class="panel" hidden></section>
-    <button id="export-report" type="button" hidden></button>
+    <section id="platform" class="shell platform" aria-labelledby="platform-title">
+      <div>
+        <div class="section-kicker">Platform approach</div>
+        <h2 id="platform-title">Readiness work is only durable when the evidence can be trusted.</h2>
+        <p>
+          OSDF combines compliance assessment, evidence operations, and cryptographic verification
+          for organizations that need defensible records across CMMC, NIST 800-171, DFARS, and
+          customer audit requirements. The result is a practical path from a one-time readiness
+          review to ongoing, audit-ready workflows.
+        </p>
+      </div>
+      <div class="maturity-card">
+        <h3>What OSDF helps teams prove</h3>
+        <dl>
+          <dt>Scope</dt>
+          <dd>Which requirements apply to a contract, environment, or supplier workflow.</dd>
+          <dt>Readiness</dt>
+          <dd>Where controls, policies, SSP language, and POA&amp;M items need attention.</dd>
+          <dt>Integrity</dt>
+          <dd>Whether an evidence artifact is signed, current, and verifiable outside the originating system.</dd>
+        </dl>
+      </div>
+    </section>
 
-    <noscript>
-      JavaScript is required to run local WebAssembly verification.
-    </noscript>
+    <section id="products" class="shell products" aria-labelledby="products-title">
+      <div class="section-heading">
+        <div>
+          <div class="section-kicker">Offerings</div>
+          <h2 id="products-title">Compliance services and infrastructure for defense teams.</h2>
+        </div>
+        <p>
+          Start with a focused assessment or readiness engagement, then expand into continuous
+          compliance, evidence vaulting, SDK integrations, or disconnected deployments as the
+          program matures.
+        </p>
+      </div>
+      <div class="product-grid">
+        <article class="product-card priority">
+          <span class="product-number">01</span>
+          <h3>AI Compliance Assessment</h3>
+          <p>Fast review of RFPs, contracts, SSPs, policies, and evidence samples for teams that need a clear starting point.</p>
+          <ul>
+            <li>NIST 800-171 gaps</li>
+            <li>CMMC mapping</li>
+            <li>DFARS exposure</li>
+            <li>Remediation roadmap</li>
+          </ul>
+          <strong>Reports starting at $499; enterprise assessments from $5k</strong>
+        </article>
+        <article class="product-card priority">
+          <span class="product-number">02</span>
+          <h3>CMMC Readiness Service</h3>
+          <p>Structured support for contractors preparing for CMMC Level 2, customer audits, or prime flow-down requirements.</p>
+          <ul>
+            <li>Gap assessment</li>
+            <li>SSP review</li>
+            <li>POA&amp;M generation</li>
+            <li>Evidence guidance</li>
+          </ul>
+          <strong>Engagements starting at $5k; larger programs quoted by scope</strong>
+        </article>
+        <article class="product-card">
+          <span class="product-number">03</span>
+          <h3>Continuous Compliance Platform</h3>
+          <p>Recurring workflow for control reviews, evidence requests, remediation tracking, and audit package preparation.</p>
+          <ul>
+            <li>Evidence intake</li>
+            <li>AI reviews</li>
+            <li>Control mapping</li>
+            <li>Readiness reporting</li>
+          </ul>
+          <strong>Plans starting at $500/month; enterprise programs from $5k/year</strong>
+        </article>
+        <article class="product-card priority">
+          <span class="product-number">04</span>
+          <h3>OSDF Evidence Vault</h3>
+          <p>Signed, versioned evidence storage for audit packages, supplier records, and program documentation.</p>
+          <ul>
+            <li>Signed artifacts</li>
+            <li>Version tracking</li>
+            <li>Verification reports</li>
+            <li>Audit receipts</li>
+          </ul>
+          <strong>Plans starting at $199/month; enterprise vaults from $1,500/month</strong>
+        </article>
+        <article class="product-card">
+          <span class="product-number">05</span>
+          <h3>OSDF Studio Enterprise</h3>
+          <p>Desktop workbench for teams that need controlled package review, trust-store management, and evidence capsule workflows.</p>
+          <ul>
+            <li>Verify packages</li>
+            <li>Manage trust stores</li>
+            <li>Create evidence capsules</li>
+            <li>Review audit receipts</li>
+          </ul>
+          <strong>Basic viewer available; professional seats from $99/user/month</strong>
+        </article>
+        <article class="product-card sdk-card">
+          <span class="product-number">06</span>
+          <h3>OSDF SDK</h3>
+          <p>Integration toolkit for software vendors, compliance platforms, defense primes, and systems integrators.</p>
+          <ul>
+            <li>Verifier integration</li>
+            <li>Evidence capsule creation</li>
+            <li>Trust-store workflows</li>
+            <li>Audit receipt APIs</li>
+          </ul>
+          <strong>Developer access available; commercial licenses from $10k/year</strong>
+        </article>
+        <article class="product-card defense-card">
+          <span class="product-number">07</span>
+          <h3>Government / Air-Gapped Edition</h3>
+          <p>Deployment option for disconnected networks, program environments, and teams requiring local verification and support.</p>
+          <ul>
+            <li>Offline verification</li>
+            <li>Local ledger</li>
+            <li>Air-gapped deployment</li>
+            <li>Embedded systems support</li>
+          </ul>
+          <strong>Pilots starting at $25k; program deployments quoted by environment</strong>
+        </article>
+        <article class="product-card later-card">
+          <span class="product-number">08</span>
+          <h3>OSDF Auditor Training</h3>
+          <p>Coming later: training for practitioners and auditors working with signed OSDF evidence workflows.</p>
+          <ul>
+            <li>Practitioner</li>
+            <li>Professional</li>
+            <li>Auditor track</li>
+          </ul>
+          <strong>Training tracks planned for future availability</strong>
+        </article>
+      </div>
+    </section>
+
+    <section id="journey" class="shell journey" aria-labelledby="journey-title">
+      <div class="section-kicker">How teams adopt OSDF</div>
+      <h2 id="journey-title">Start with a contract question. Build toward verifiable evidence operations.</h2>
+      <ol class="journey-rail">
+        <li><span>01</span><strong>RFP Review</strong><p>Upload RFPs and contract clauses to identify NIST, CMMC, and DFARS exposure.</p></li>
+        <li><span>02</span><strong>Readiness Assessment</strong><p>Translate findings into gap assessment, SSP review, POA&amp;M, and remediation sequencing.</p></li>
+        <li><span>03</span><strong>Continuous Compliance</strong><p>Move repeated control reviews and evidence requests into a managed workflow.</p></li>
+        <li><span>04</span><strong>Evidence Vault</strong><p>Store evidence as signed, versioned artifacts with verification reports.</p></li>
+        <li><span>05</span><strong>SDK / Integrations</strong><p>Embed verification and evidence capsules into customer systems and partner platforms.</p></li>
+      </ol>
+    </section>
+
+    <section id="verifier" class="shell verifier" aria-labelledby="verifier-title">
+      <div class="verifier-intro">
+        <div>
+          <p class="eyebrow">Live local verifier</p>
+          <h2 id="verifier-title">Verify an OSDF document in the browser.</h2>
+          <p class="privacy-note">
+            Verification runs locally in your browser. This file is not uploaded.
+          </p>
+          <p id="verifier-fingerprint" class="fingerprint"></p>
+        </div>
+        <a class="button secondary" href="https://github.com/osdf-systems/osdf/blob/main/docs/web-verifier.md">Verifier docs</a>
+      </div>
+
+      <div class="verifier-grid">
+        <section class="panel ledger-panel" aria-labelledby="trust-config-title">
+          <h3 id="trust-config-title">Trust configuration (optional)</h3>
+          <p class="privacy-note">
+            Paste JSON trust material for ledger and/or organizational identity verification.
+            Leave empty for standard local verification.
+          </p>
+          <label for="ledger-config">Ledger config (`LedgerConfig`)</label>
+          <textarea
+            id="ledger-config"
+            rows="5"
+            spellcheck="false"
+            placeholder='{"policy":"required","trustedLogs":[{"logId":"...","logPublicKeyUrn":"..."}]}'
+          ></textarea>
+          <label for="identity-config">Identity config (`IdentityConfig`)</label>
+          <textarea
+            id="identity-config"
+            rows="8"
+            spellcheck="false"
+            placeholder='{"policy":"required","organizations":[{"organizationId":"...","displayName":"State of Colorado","rootKeys":["..."]}],"delegations":[...]}'
+          ></textarea>
+        </section>
+
+        <div>
+          <section
+            id="drop-zone"
+            class="drop-zone"
+            tabindex="0"
+            role="button"
+            aria-label="Choose or drop an OSDF file"
+          >
+            <strong>Drop an .osdf file here</strong>
+            <span>or</span>
+            <button id="choose-file" type="button">Choose file</button>
+            <input id="file-input" type="file" accept=".osdf" hidden>
+          </section>
+
+          <section id="file-summary" class="panel" hidden></section>
+          <section id="verification-result" class="panel" hidden></section>
+          <button id="export-report" type="button" hidden></button>
+        </div>
+      </div>
+
+      <noscript>
+        JavaScript is required to run local WebAssembly verification.
+      </noscript>
+    </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-grid">
+      <p><strong>OSDF Systems</strong> builds verifiable compliance evidence infrastructure for defense and regulated teams.</p>
+      <div>
+        <a href="https://github.com/osdf-systems/osdf/tree/main/docs">Documentation</a>
+        <a href="https://github.com/osdf-systems/osdf">Open core</a>
+      </div>
+    </div>
+  </footer>
 
   <script type="module" src="./app.js"></script>
 </body>

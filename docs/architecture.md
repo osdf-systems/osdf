@@ -35,8 +35,8 @@ flowchart TB
     end
 
     subgraph egress["Egress (controlled export)"]
-        L[Transformation receipt planned<br/>export / render / redact]
-        M[PDF or Office view<br/>interop adapter planned]
+        L[Transform receipt<br/>export / render / sanitize / redact]
+        M[Derived clean capsule<br/>interop adapter planned]
     end
 
     A --> B --> C
@@ -106,7 +106,10 @@ Benchmark each profile separately: [benchmarks.md](benchmarks.md)
 | `osdf-cli` / WASM | Same core, CLI or browser |
 | `gateway/` | MFA + render after verify (PoC) |
 | `VerifyPlan` / `scale_bench` | Thread and profile selection for throughput |
-| Transformation receipt (draft) | Signed ingress/export provenance |
+| Transform / inspection schemas | Signed ingress/export/sanitizer provenance |
 | Offline bundle (draft) | Point-in-time audit export |
+| Self-hosted test ledger (planned) | Online-enhanced verify and latest-revision testing |
 
 Roadmap: [roadmap.md](roadmap.md)
+
+Transform receipt spec: [specs/transformation-receipt.md](../specs/transformation-receipt.md)

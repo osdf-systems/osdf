@@ -64,6 +64,13 @@ pub fn compute_object_entry(path: &str, object_type: &str, bytes: &[u8]) -> Mani
         bytes: bytes.len() as u64,
         digest_algorithm: "SHA-256".to_string(),
         digest: format_digest(&digest_bytes),
+        object_id: None,
+        object_role: None,
+        media_type: None,
+        security_labels: Vec::new(),
+        origin_object: None,
+        derived_from: Vec::new(),
+        inspection_status: None,
     }
 }
 
@@ -180,15 +187,17 @@ pub fn verify_manifest_objects(
         }
     }
 
-    let computed_root = merkle_root(&manifest.objects);
-    match parse_digest(&manifest.revision_root_hash) {
-        Ok(declared_root) => {
-            if !digests_equal(&computed_root, &declared_root) {
-                failures.push(OsdfError::Integrity(
-                    "revision Merkle root mismatch".to_string(),
-                ));
+    match merkle_root(&manifest.objects) {
+        Ok(computed_root) => match parse_digest(&manifest.revision_root_hash) {
+            Ok(declared_root) => {
+                if !digests_equal(&computed_root, &declared_root) {
+                    failures.push(OsdfError::Integrity(
+                        "revision Merkle root mismatch".to_string(),
+                    ));
+                }
             }
-        }
+            Err(err) => failures.push(err),
+        },
         Err(err) => failures.push(err),
     }
 

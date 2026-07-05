@@ -19,6 +19,8 @@ Verification profiles (portable full, portable fast, parsed revalidation) are do
 | Organizational identity (configured)   | Local trust registry + delegation credentials                         |
 | Latest-revision registry (file-backed) | Outdated-revision warnings                                            |
 | Side-channel hardening (audit path)    | Constant-time digests; full-scan manifest audit                       |
+| Structured verification summary V2     | Machine-readable package/object summaries for gateways                |
+| Transform / inspection schema types    | Core structs for sanitizer and derived-capsule receipts               |
 
 
 See [SECURITY.md](../SECURITY.md) for the timing threat model.
@@ -27,13 +29,13 @@ See [SECURITY.md](../SECURITY.md) for the timing threat model.
 
 ## Build next
 
-These three features extend provenance, presentation integrity, and offline trust without replacing the portable package baseline.
+These features extend provenance, presentation integrity, and offline/online trust without replacing the portable package baseline.
 
 ### 1. Verified transformation receipts
 
 **Goal:** Prove how one document or evidence copy was **derived** from another (redact, extract, merge, export, render, submit), not merely that it is a new revision.
 
-**Status:** Schema draft - [specs/transformation-receipt.md](../specs/transformation-receipt.md)
+**Status:** Core receipt structs added; sanitizer implementation planned - [specs/transformation-receipt.md](../specs/transformation-receipt.md)
 
 **Relationship to today:** Revision commit proves *what changed* in the chain; transformation receipts prove *why and how* a derived artifact exists relative to a named source commitment.
 
@@ -52,6 +54,12 @@ These three features extend provenance, presentation integrity, and offline trus
 **Status:** Schema draft - [specs/offline-verification-bundle.md](../specs/offline-verification-bundle.md)
 
 **Relationship to today:** Embedded proofs and trust JSON exist inside packages; the bundle **packages the package + pinned trust snapshot + full report + verifier metadata** for export.
+
+### 4. Self-hosted master ledger for online verification
+
+**Goal:** Run a local ledger daemon that exercises online-enhanced verification, latest-revision lookups, and embedded proof attachment without relying on a production hosted service.
+
+**Status:** Design; core file-backed ledger primitives exist - see [specs/phase-d-m2-hosted.md](../specs/phase-d-m2-hosted.md) for the hosted-mode CLI sketch
 
 ---
 
