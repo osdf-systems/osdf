@@ -7,7 +7,7 @@ use zip::{ZipArchive, ZipWriter};
 
 use crate::constants::{
     suspicious_compression_ratio, HEADER_PATH, HEADER_SIZE, HEADER_VERSION, MAGIC, MAX_ENTRIES,
-    MAX_UNCOMPRESSED_BYTES,
+    MAX_UNCOMPRESSED_BYTES, PREALLOC_CAP_BYTES,
 };
 use crate::error::{OsdfError, Result};
 
@@ -71,21 +71,32 @@ impl PackageContainer {
                 )));
             }
 
-            total_uncompressed = total_uncompressed.saturating_add(file.size());
-            if total_uncompressed > MAX_UNCOMPRESSED_BYTES {
+            let claimed = file.size();
+            let remaining = MAX_UNCOMPRESSED_BYTES.saturating_sub(total_uncompressed);
+            if claimed > remaining {
                 return Err(OsdfError::Container(format!(
                     "uncompressed size exceeds limit ({MAX_UNCOMPRESSED_BYTES} bytes)"
                 )));
             }
 
-            let mut bytes = Vec::with_capacity(file.size() as usize);
-            file.read_to_end(&mut bytes)?;
+            let capacity = claimed.min(remaining).min(PREALLOC_CAP_BYTES) as usize;
+            let mut bytes = Vec::with_capacity(capacity);
+            file.by_ref()
+                .take(remaining.saturating_add(1))
+                .read_to_end(&mut bytes)?;
 
-            if bytes.len() as u64 != file.size() {
+            let actual = bytes.len() as u64;
+            if actual > remaining {
+                return Err(OsdfError::Container(format!(
+                    "uncompressed size exceeds limit ({MAX_UNCOMPRESSED_BYTES} bytes)"
+                )));
+            }
+            if actual != claimed {
                 return Err(OsdfError::Container(format!(
                     "size mismatch for `{normalized}`"
                 )));
             }
+            total_uncompressed = total_uncompressed.saturating_add(actual);
 
             entries.insert(
                 normalized.clone(),

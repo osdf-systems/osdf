@@ -135,11 +135,23 @@ pub fn verify_signatures(container: &PackageContainer) -> Result<Vec<SignatureEn
         }
     }
 
-    if failures.is_empty() {
-        Ok(verified)
-    } else {
-        Err(failures.into_iter().next().expect("failures non-empty"))
+    if !failures.is_empty() {
+        return Err(failures.into_iter().next().expect("failures non-empty"));
     }
+
+    if manifest.revision > 0
+        && !verified.is_empty()
+        && !verified
+            .iter()
+            .any(|envelope| envelope.revision == manifest.revision)
+    {
+        return Err(OsdfError::Signature(format!(
+            "no signature covers current revision {}",
+            manifest.revision
+        )));
+    }
+
+    Ok(verified)
 }
 
 #[cfg(all(test, feature = "native-create"))]
@@ -179,5 +191,53 @@ mod tests {
         )
         .unwrap();
         verifying_key.verify(&payload, &signature).unwrap();
+    }
+
+    #[test]
+    fn grafted_signature_for_wrong_revision_is_rejected() {
+        use crate::build::{
+            commit_revision, create_package_with_document, refresh_manifest_and_header,
+            CommitOptions,
+        };
+        use crate::identity::VerifierConfig;
+        use crate::report::VerificationStatus;
+        use crate::verify::verify_container;
+        use crate::verify_fast::verify_package_bytes_fast;
+        use crate::verify_profile::FastVerifyResult;
+
+        let signing_key = generate_signing_key();
+        let doc = br#"{"type":"document","value":"v1"}"#;
+        let mut container =
+            create_package_with_document("urn:osdf:doc:graft", doc, &signing_key).unwrap();
+        commit_revision(
+            &mut container,
+            CommitOptions {
+                signing_key: signing_key.clone(),
+                signer_key_reference: None,
+            },
+        )
+        .unwrap();
+
+        assert_eq!(
+            verify_container(&container).overall,
+            VerificationStatus::Pass
+        );
+
+        container.remove(&signature_path(2));
+        refresh_manifest_and_header(&mut container).unwrap();
+
+        let report = verify_container(&container);
+        assert_eq!(
+            report.overall,
+            VerificationStatus::Fail,
+            "grafted-only package must fail: {:?}",
+            report.findings
+        );
+
+        let bytes = container.to_bytes().unwrap();
+        assert!(matches!(
+            verify_package_bytes_fast(&bytes, &VerifierConfig::default()),
+            FastVerifyResult::Fail(_)
+        ));
     }
 }
