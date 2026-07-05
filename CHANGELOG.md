@@ -4,14 +4,16 @@ All notable changes to this project are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.1.0-alpha.2](https://github.com/osdf-systems/osdf/releases/tag/v0.1.0-alpha.2) - TBD
+## [0.1.0-alpha.2](https://github.com/osdf-systems/osdf/releases/tag/v0.1.0-alpha.2) - 2026-07-05
 
-Incremental alpha - verification profiles, hardening, and public roadmap.
+Incremental alpha - verification profiles, hardening, provenance schemas, and public roadmap. First tagged release (includes everything listed under 0.1.0-alpha.1).
 
 ### Added
 
 - Verification profiles: portable full report, fast verify API, parsed-container revalidation (`verify_profile`, `verify_fast`)
 - `scale_bench` example with `--profile full|fast|parsed`
+- Transform / inspection receipt schema types (`provenance` module) and structured verification summary V2
+- `osdf ledger register / latest / trust-config` subcommands
 - Public roadmap (`docs/roadmap.md`) and interoperability design (`docs/interoperability.md`)
 - Draft specs: transformation receipt, offline verification bundle (`specs/` + JSON Schema stubs)
 
@@ -19,8 +21,9 @@ Incremental alpha - verification profiles, hardening, and public roadmap.
 
 - Side-channel hardening: constant-time digest comparison on audit paths; full-scan manifest audit (`SECURITY.md`)
 - Manifest JSON stored uncompressed; compression-bomb ratio check scoped to large payloads (`MIN_COMPRESSION_RATIO_CHECK_BYTES`)
+- Fixture set regenerated consistently (identity trust matches identity fixture)
 
-## [0.1.0-alpha.1](https://github.com/osdf-systems/osdf/releases/tag/v0.1.0-alpha.1) - TBD
+## 0.1.0-alpha.1 - not tagged (rolled into v0.1.0-alpha.2)
 
 First public alpha: verification-only release.
 
